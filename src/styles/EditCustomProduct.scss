@@ -1,0 +1,382 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+$accent:        #0052cc;
+$accent-h:      #0065ff;
+$orange:        #e05c00;
+$orange-h:      #f06000;
+$orange-bg:     #fff3eb;
+$orange-border: #f5a87b;
+$danger:        #de350b;
+$border:        #dfe1e6;
+$surface:       #f4f5f7;
+$surface-2:     #ebecf0;
+$text:          #172b4d;
+$text-sec:      #42526e;
+$text-muted:    #6b778c;
+
+.ecp {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: $text;
+  font-size: 14px;
+  max-width: 1100px;
+  margin: 0 auto;
+  * { box-sizing: border-box; }
+
+  /* ---------- Page header ---------- */
+  .ecp-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 0 14px 16px;
+    border-bottom: 2px solid $border;
+    border-left: 4px solid $orange;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
+  .ecp-breadcrumb {
+    font-size: 11px;
+    color: $orange;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+
+  .ecp-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: $text;
+    letter-spacing: -0.01em;
+  }
+
+  .ecp-subtitle {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: $text-muted;
+  }
+
+  /* ---------- Card ---------- */
+  .ecp-card {
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .ecp-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: $surface;
+    border-bottom: 2px solid $orange;
+  }
+
+  .ecp-card-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $text-muted;
+  }
+
+  .ecp-card-body { padding: 24px 22px; }
+
+  /* ---------- Loading ---------- */
+  .ecp-loading {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 50px; color: $text-muted; font-size: 14px;
+  }
+  .ecp-spinner {
+    width: 18px; height: 18px; border: 3px solid $surface-2;
+    border-top-color: $orange; border-radius: 50%;
+    animation: ecp-spin 0.7s linear infinite;
+  }
+  @keyframes ecp-spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Alert ---------- */
+  .ecp-alert {
+    padding: 12px 16px;
+    margin-bottom: 22px;
+    border-radius: 3px;
+    background: #ffebe6;
+    border-left: 4px solid $danger;
+    color: #bf2600;
+    font-size: 13px;
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    li { margin-top: 2px; }
+  }
+
+  /* ---------- Section ---------- */
+  .ecp-section {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid $border;
+  }
+  .ecp-section-last { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .ecp-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-muted;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid $surface-2;
+
+    svg { color: $orange; flex-shrink: 0; }
+  }
+
+  /* ---------- Grids ---------- */
+  .ecp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ecp-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ---------- Groups ---------- */
+  .ecp-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: $text-sec;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  .ecp-full { grid-column: 1 / -1; }
+
+  .ecp-status-group {
+    justify-content: center;
+    padding-top: 22px;
+  }
+
+  .ecp-checkbox-label {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-sec;
+    margin-bottom: 0 !important;
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: $orange;
+      cursor: pointer;
+    }
+  }
+
+  /* ---------- Controls ---------- */
+  .ecp-group input[type="text"],
+  .ecp-group input[type="number"],
+  .ecp-group select,
+  .ecp-group textarea,
+  .ecp-group input[type="file"] {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 2px solid $border;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    color: $text;
+    transition: border-color 0.15s ease;
+
+    &:hover { border-color: #b3bac5; }
+    &:focus {
+      outline: none;
+      border-color: $orange;
+      box-shadow: 0 0 0 2px rgba($orange, 0.15);
+    }
+
+    &:disabled {
+      background: $surface;
+      color: $text-muted;
+      cursor: not-allowed;
+    }
+  }
+
+  .ecp-group select { cursor: pointer; appearance: none;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='none' stroke='%236b778c' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    padding-right: 32px;
+  }
+
+  .ecp-group textarea {
+    height: auto;
+    min-height: 100px;
+    padding: 10px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .ecp-group input[type="file"] {
+    height: auto;
+    padding: 7px 10px;
+    cursor: pointer;
+
+    &::file-selector-button {
+      margin-right: 10px;
+      padding: 4px 12px;
+      border: none;
+      border-radius: 3px;
+      background: $orange;
+      color: #fff;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+
+      &:hover { background: $orange-h; }
+    }
+  }
+
+  .ecp-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    color: $text-muted;
+    line-height: 1.4;
+  }
+
+  .ecp-error {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: $danger;
+    font-weight: 600;
+  }
+
+  /* ---------- Images ---------- */
+  .ecp-current-image {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 3px;
+
+    img {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid $border;
+    }
+  }
+
+  .ecp-image-label {
+    font-size: 12px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  .ecp-additional { margin-top: 14px; }
+  .ecp-additional-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 10px;
+  }
+
+  .ecp-additional-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+  }
+
+  .ecp-image-item {
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid $border;
+
+    img { width: 100%; height: 90px; object-fit: cover; display: block; }
+  }
+
+  .ecp-del-img {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border: none;
+    cursor: pointer;
+    background: $danger;
+    color: #fff;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+
+    &:hover { background: darken($danger, 8%); }
+  }
+
+  /* ---------- Actions bar ---------- */
+  .ecp-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 2px solid $border;
+  }
+
+  .ecp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &.primary {
+      color: #fff;
+      background: $orange;
+      min-width: 140px;
+
+      &:hover:not(:disabled) { background: $orange-h; }
+      &:disabled { opacity: 0.55; cursor: not-allowed; }
+    }
+
+    &.secondary {
+      color: $text-sec;
+      background: $surface;
+      border: 1px solid $border;
+
+      &:hover { border-color: $text-muted; background: $surface-2; }
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 768px) {
+    .ecp-grid-2, .ecp-grid-3 { grid-template-columns: 1fr; }
+    .ecp-card-body { padding: 16px; }
+    .ecp-status-group { padding-top: 0; }
+    .ecp-actions { flex-direction: column; }
+    .ecp-btn { width: 100%; justify-content: center; }
+  }
+}

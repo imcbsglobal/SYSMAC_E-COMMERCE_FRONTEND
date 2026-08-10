@@ -1,0 +1,809 @@
+// ============================================================
+// AllProducts — Sysmac storefront style (rounded, orange accent)
+// Single page scrollbar. Sidebar is sticky.
+// Wishlist is pinned top-left on the product image (iOS-style,
+// no background box, subtle white chip). Badges moved to
+// top-right so they don't collide with the wishlist icon.
+// Cart button is icon+full-width in its own row below.
+// ============================================================
+
+$orange: #f98f15;
+$orange-subtle: #fff4e5;
+$navy: #172b4d;
+$text-muted: #626f86;
+$border: #e5e7eb;
+$border-strong: #c1c7d0;
+$bg-page: #f7f8f9;
+$bg-panel: #ffffff;
+$green: #1f845c;
+
+$radius-lg: 10px;
+$radius-md: 8px;
+$radius-sm: 6px;
+
+$font: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+$sticky-top: 16px;
+
+@mixin eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+@mixin thin-scrollbar {
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $border-strong; border-radius: 3px; }
+  &::-webkit-scrollbar-thumb:hover { background: $orange; }
+}
+
+.ap-page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+  font-family: $font;
+  color: $navy;
+  background: $bg-page;
+}
+
+.ap-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: $text-muted;
+  margin-bottom: 18px;
+
+  a {
+    color: $text-muted;
+    text-decoration: none;
+    &:hover { color: $orange; }
+  }
+
+  .current {
+    color: $navy;
+    font-weight: 700;
+  }
+}
+
+.ap-crumb-sep {
+  color: #cbd2db;
+}
+
+.ap-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px; // widened from 20px so the sidebar doesn't crowd the grid
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.ap-sidebar {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  position: sticky;
+  top: $sticky-top;
+  align-self: flex-start;
+
+  max-height: calc(100vh - #{$sticky-top} * 2);
+  overflow-y: auto;
+  padding-right: 4px;
+  @include thin-scrollbar;
+
+  @media (max-width: 900px) {
+    flex: none;
+    width: 100%;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.ap-sidebar-section {
+  background: $bg-panel;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 16px 16px 18px;
+  flex-shrink: 0;
+}
+
+.ap-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  h3 {
+    @include eyebrow;
+    margin: 0;
+  }
+}
+
+.ap-clear-link {
+  font-size: 0.78rem;
+  color: $orange;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover { text-decoration: underline; }
+}
+
+.ap-category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 260px;
+  overflow-y: auto;
+  @include thin-scrollbar;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: $radius-md;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: $navy;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover { background: $bg-page; }
+
+    &.active {
+      color: $orange;
+      background: $orange-subtle;
+    }
+  }
+}
+
+.ap-cat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $orange;
+  flex-shrink: 0;
+}
+
+.ap-count {
+  color: $text-muted;
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.ap-filter-block {
+  margin-bottom: 20px;
+  padding-top: 16px;
+  border-top: 1px solid $border;
+
+  &:first-of-type { padding-top: 0; border-top: none; }
+  &:last-child { margin-bottom: 0; }
+}
+
+.ap-filter-label {
+  display: block;
+  @include eyebrow;
+  margin-bottom: 12px;
+}
+
+.ap-price-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 4px;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid $orange;
+    margin-top: -5px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  &::-moz-range-track {
+    height: 6px;
+    border-radius: 4px;
+    background: $border;
+  }
+
+  &::-moz-range-progress {
+    height: 6px;
+    border-radius: 4px;
+    background: $orange;
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid $orange;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.ap-price-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: $navy;
+  margin-top: 8px;
+
+  span:first-child { color: $text-muted; font-weight: 500; }
+}
+
+.ap-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+  @include thin-scrollbar;
+}
+
+.ap-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: $navy;
+  cursor: pointer;
+
+  input {
+    accent-color: $orange;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+}
+
+.ap-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ap-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $bg-panel;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 0 14px;
+  margin-bottom: 16px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+  &:focus-within {
+    border-color: $orange;
+    box-shadow: 0 0 0 2px $orange-subtle;
+  }
+}
+
+.ap-search-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: $text-muted;
+}
+
+.ap-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 13px 12px;
+  font-size: 0.9rem;
+  color: $navy;
+  font-family: inherit;
+
+  &::placeholder { color: $text-muted; }
+}
+
+.ap-search-clear {
+  border: none;
+  background: $bg-page;
+  color: $text-muted;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+
+  &:hover { background: $navy; color: #fff; }
+}
+
+.ap-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ap-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: $navy;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.ap-subtitle {
+  font-size: 0.85rem;
+  color: $text-muted;
+  margin: 0;
+
+  strong { color: $navy; }
+}
+
+.ap-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $text-muted;
+
+  select {
+    padding: 8px 12px;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: $navy;
+    background: $bg-panel;
+    cursor: pointer;
+
+    &:hover { border-color: $border-strong; }
+    &:focus { outline: none; border-color: $orange; box-shadow: 0 0 0 2px $orange-subtle; }
+  }
+}
+
+.ap-loading-more {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-muted;
+  margin-bottom: 14px;
+}
+
+.ap-loading-more-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid $border;
+  border-top-color: $orange;
+  border-radius: 50%;
+  animation: ap-spin 0.7s linear infinite;
+}
+
+@keyframes ap-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ap-loading,
+.ap-empty {
+  padding: 60px 0;
+  text-align: center;
+  color: $text-muted;
+  font-size: 0.92rem;
+  font-weight: 500;
+  background: $bg-panel;
+  border: 1px dashed $border-strong;
+  border-radius: $radius-lg;
+}
+
+.ap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1100px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 800px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px)  { grid-template-columns: 1fr; }
+}
+
+.ap-card {
+  position: relative;
+  background: $bg-panel;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+
+  &:hover {
+    border-color: $border-strong;
+    box-shadow: 0 4px 14px rgba(23, 43, 77, 0.08);
+    transform: translateY(-1px);
+  }
+}
+
+// Discount/New badges — top-right, stacked if both are present
+.ap-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: $radius-sm;
+  color: #fff;
+  z-index: 2;
+  letter-spacing: 0.02em;
+}
+
+.ap-badge-discount { background: $orange; }
+
+.ap-badge-new {
+  background: $green;
+  top: 40px; // stacks below the discount badge when both show
+}
+
+.ap-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: $bg-page;
+  border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 20px;
+  }
+}
+
+.ap-card-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ap-card-brand {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $text-muted;
+  font-weight: 700;
+}
+
+.ap-card-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: $navy;
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ap-card-spec {
+  font-size: 0.76rem;
+  color: $text-muted;
+  margin: 0;
+}
+
+.ap-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $navy;
+}
+
+.ap-star { color: $orange; }
+
+.ap-review-count { color: $text-muted; font-weight: 500; }
+
+.ap-card-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.ap-card-price {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: $navy;
+}
+
+.ap-card-mrp {
+  font-size: 0.8rem;
+  color: $text-muted;
+  text-decoration: line-through;
+}
+
+// Cart button now sits alone in its row (wishlist moved onto the image)
+.ap-card-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ap-card-btn {
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: $bg-panel;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Cart button — outline by default, fills orange on hover, spans the row
+.ap-card-btn-cart {
+  width: 100%;
+  height: 40px;
+  padding: 0;
+  gap: 8px;
+  color: $navy;
+  background: $bg-panel;
+  border-color: $border;
+
+  &:hover {
+    color: #fff;
+    background: $orange;
+    border-color: $orange;
+  }
+}
+
+// Plain iOS-style icon toggle — no fill, no border, no box
+.ap-icon-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-muted;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    background: rgba($navy, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// Wishlist — pinned to the top-left corner of the product image,
+// floating on a soft white chip so it stays readable over any photo
+.ap-icon-btn-wish {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 4px rgba(23, 43, 77, 0.15);
+  backdrop-filter: blur(2px);
+
+  &:hover {
+    color: $orange;
+    background: #fff;
+  }
+
+  &.active {
+    color: $orange;
+    background: #fff;
+  }
+}
+
+.ap-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: 30px;
+
+  button {
+    min-width: 32px;
+    height: 32px;
+    border-radius: $radius-sm;
+    border: 1px solid transparent;
+    background: transparent;
+    color: $navy;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s ease;
+
+    &:hover:not(:disabled) {
+      background: $bg-page;
+    }
+
+    &.active {
+      background: $orange;
+      color: #fff;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.ap-page-dots {
+  color: $text-muted;
+  padding: 0 4px;
+}
+.ap-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: $navy;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: $radius-md;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: ap-toast-in 0.2s ease;
+}
+
+@keyframes ap-toast-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+// ============================================================
+// NEW: Login-required alert modal
+// ============================================================
+.ap-login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 43, 77, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+  animation: ap-toast-in 0.15s ease;
+}
+
+.ap-login-modal {
+  position: relative;
+  background: $bg-panel;
+  border-radius: $radius-lg;
+  padding: 28px 24px 24px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(23, 43, 77, 0.25);
+}
+
+.ap-login-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: $bg-page;
+  color: $text-muted;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, color 0.12s ease;
+
+  &:hover { background: $navy; color: #fff; }
+}
+
+.ap-login-modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: $orange-subtle;
+  color: $orange;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.ap-login-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: $navy;
+  margin: 0 0 8px;
+}
+
+.ap-login-modal-text {
+  font-size: 0.88rem;
+  color: $text-muted;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.ap-login-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ap-login-modal-btn {
+  flex: 1;
+  height: 42px;
+  border-radius: $radius-md;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.ap-login-modal-btn-secondary {
+  border: 1px solid $border;
+  background: $bg-panel;
+  color: $navy;
+
+  &:hover { background: $bg-page; }
+}
+
+.ap-login-modal-btn-primary {
+  border: 1px solid $orange;
+  background: $orange;
+  color: #fff;
+
+  &:hover { background: darken($orange, 6%); }
+}

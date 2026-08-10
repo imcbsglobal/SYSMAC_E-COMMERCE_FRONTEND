@@ -1,0 +1,616 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+$primary:     #7c3aed;
+$primary-h:   #6d28d9;
+$primary-2:   #ec4899;
+$primary-bg:  #f5f3ff;
+$primary-border: #ddd6fe;
+$success:     #059669;
+$danger:      #dc2626;
+$card:        #ffffff;
+$border:      #e5e7eb;
+$surface:     #fafafa;
+$surface-2:   #f0f0f2;
+$text:        #18181b;
+$text-sec:    #52525b;
+$text-muted:  #a1a1aa;
+$radius:      14px;
+$shadow-card: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px -12px rgba(124,58,237,.15);
+
+.sp {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: $text;
+
+  * { box-sizing: border-box; }
+
+  .sp-page-header {
+    padding: 24px 26px;
+    background: $card;
+    border: 1px solid $border;
+    border-left: 5px solid $primary;
+    border-radius: $radius;
+    margin-bottom: 20px;
+    box-shadow: $shadow-card;
+  }
+
+  .sp-breadcrumb {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+
+  .sp-page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: $text;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .sp-card {
+    background: $card;
+    border: 1px solid $border;
+    border-radius: $radius;
+    border-left: 5px solid $primary;
+    overflow: hidden;
+    box-shadow: $shadow-card;
+  }
+
+  .sp-card-head {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, $primary-bg, #fdf2f8);
+    border-bottom: 2px solid $primary-border;
+  }
+
+  .sp-card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $primary-h;
+    margin: 0 0 12px;
+  }
+
+  .sp-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .sp-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 220px;
+    max-width: 340px;
+  }
+
+  .sp-search-icon {
+    position: absolute;
+    left: 11px;
+    width: 13px;
+    height: 13px;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  .sp-search {
+    width: 100%;
+    height: 38px;
+    padding: 0 32px 0 34px;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: $text;
+    background: $surface;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &::placeholder { color: $text-muted; }
+    &:hover { border-color: #d4d4d8; }
+    &:focus { border-color: $primary; background: #fff; box-shadow: 0 0 0 3px rgba($primary, 0.15); }
+  }
+
+  .sp-clear {
+    position: absolute;
+    right: 7px;
+    width: 24px; height: 24px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg { width: 11px; height: 11px; }
+    &:hover { background: $surface-2; color: $danger; }
+  }
+
+  .sp-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    svg {
+      position: absolute;
+      right: 10px;
+      width: 10px;
+      height: 10px;
+      color: $text-muted;
+      pointer-events: none;
+    }
+  }
+
+  .sp-select {
+    height: 38px;
+    padding: 0 30px 0 12px;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: $text;
+    background: $surface;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    min-width: 140px;
+
+    &:hover { border-color: #d4d4d8; }
+    &:focus { border-color: $primary; background-color: #fff; box-shadow: 0 0 0 3px rgba($primary, 0.15); }
+  }
+
+  .sp-reset {
+    height: 38px;
+    padding: 0 16px;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: $text-sec;
+    background: $surface;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+
+    svg { width: 13px; height: 13px; }
+    &:hover { border-color: $primary; color: $primary-h; background: $primary-bg; }
+  }
+
+  // ── Deal of the Day — toggle button (sits alongside sp-reset) ──
+  .dotd-panel-toggle {
+    height: 38px;
+    padding: 0 16px;
+    border: 1.5px solid $primary-border;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: $primary-h;
+    background: $primary-bg;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+
+    i { font-size: 13px; }
+    &:hover { background: linear-gradient(135deg, $primary, $primary-2); color: #fff; border-color: transparent; }
+  }
+  .dotd-panel-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 999px; background: $primary-2; color: #fff;
+    font-size: 11px; font-weight: 800;
+  }
+
+  .sp-card-body {
+    padding: 18px 20px;
+  }
+
+  // ── Deal of the Day — panel (list of deals, shown inside sp-card-body) ──
+  .dotd-panel {
+    margin: 0 0 18px;
+    padding: 16px 18px;
+    border: 1px solid $primary-border;
+    background: linear-gradient(135deg, $primary-bg, #fdf2f8);
+    border-radius: $radius;
+  }
+  .dotd-panel-head {
+    margin-bottom: 10px;
+    h3 { margin: 0 0 2px; font-size: 14px; font-weight: 800; color: $text; }
+    p { margin: 0; font-size: 12px; color: $text-muted; }
+  }
+  .dotd-panel-loading, .dotd-panel-empty {
+    padding: 14px 0; font-size: 13px; color: $text-muted; text-align: center;
+  }
+  .dotd-panel-list { display: flex; flex-direction: column; gap: 8px; }
+  .dotd-panel-row {
+    display: flex; align-items: center; gap: 12px;
+    background: $card; border: 1px solid $border; border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .dotd-panel-img {
+    width: 40px; height: 40px; border-radius: 8px; object-fit: contain;
+    background: $card; border: 1px solid $border; flex-shrink: 0;
+  }
+  .dotd-panel-img-empty {
+    display: flex; align-items: center; justify-content: center;
+    color: $text-muted; font-size: 14px;
+  }
+  .dotd-panel-info { flex: 1; min-width: 0; }
+  .dotd-panel-name {
+    font-size: 13px; font-weight: 700; color: $text;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .dotd-panel-times { font-size: 11.5px; color: $text-muted; margin-top: 2px; }
+  .dotd-status {
+    flex-shrink: 0; font-size: 11px; font-weight: 800; padding: 3px 10px;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: .04em;
+  }
+  .dotd-status-active     { background: #d1fae5; color: #047857; }
+  .dotd-status-scheduled  { background: $primary-bg; color: $primary-h; }
+  .dotd-status-expired    { background: $surface-2; color: $text-muted; }
+  .dotd-status-cancelled  { background: #fee2e2; color: #b91c1c; }
+  .dotd-panel-remove {
+    flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px;
+    border: 1.5px solid #fecaca; background: #fef2f2; color: $danger;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.15s ease;
+    &:hover { background: $danger; color: #fff; border-color: transparent; }
+  }
+
+  .sp-count-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .sp-count-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: $primary-bg;
+    color: $primary-h;
+    border: 1px solid $primary-border;
+    line-height: 18px;
+  }
+
+  .sp-loading-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  .sp-loading-more-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid $primary-border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: sp-spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .sp-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 56px;
+    color: $text-muted;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .sp-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid $surface-2;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: sp-spin 0.7s linear infinite;
+  }
+
+  @keyframes sp-spin { to { transform: rotate(360deg); } }
+
+  .sp-empty {
+    text-align: center;
+    padding: 56px 20px;
+    color: $text-muted;
+
+    svg {
+      width: 44px;
+      height: 44px;
+      opacity: 0.3;
+      margin-bottom: 14px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  .sp-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text-sec;
+    margin-bottom: 4px;
+  }
+
+  .sp-empty-sub {
+    font-size: 13px;
+    color: $text-muted;
+  }
+
+  .sp-table-wrap {
+    border: 1px solid $border;
+    border-radius: $radius;
+    overflow: hidden;
+    overflow-x: auto;
+  }
+
+  .sp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+    background: $card;
+
+    thead th {
+      background: linear-gradient(135deg, $primary-bg, #fdf2f8);
+      text-align: left;
+      padding: 13px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $primary-h;
+      border-bottom: 2px solid $primary-border;
+      border-right: 1px solid $primary-border;
+
+      &:last-child { border-right: none; }
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid $border;
+      color: $text-sec;
+      vertical-align: middle;
+      border-right: 1px solid $border;
+
+      &:last-child { border-right: none; }
+    }
+
+    tbody tr {
+      transition: background 0.12s ease;
+      &:nth-child(even) { background: $surface; }
+      &:last-child td { border-bottom: none; }
+      &:hover { background: $primary-bg; }
+    }
+  }
+
+  .sp-strong { font-weight: 700; color: $text; }
+  .sp-muted  { color: $text-muted; }
+
+  .sp-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: $primary-h;
+    background: $primary-bg;
+    border: 1px solid $primary-border;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+
+  .sp-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid $border;
+    display: block;
+  }
+
+  .sp-no-img {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $surface-2;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-size: 8px;
+    color: $text-muted;
+    text-align: center;
+  }
+
+  .sp-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    &.active   { background: #d1fae5; color: #047857; }
+    &.inactive { background: #fee2e2; color: #b91c1c; }
+  }
+
+  .sp-bs {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #fdf2f8, $primary-bg);
+    color: $primary-2;
+    border: none;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .sp-regular {
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  .sp-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .sp-act {
+    height: 30px;
+    padding: 0 12px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    background: $card;
+
+    &.edit {
+      color: $primary;
+      border-color: $primary-border;
+      background: $primary-bg;
+      &:hover {
+        background: linear-gradient(135deg, $primary, $primary-2);
+        color: #fff;
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba($primary, 0.5);
+      }
+    }
+
+    &.del {
+      color: $danger;
+      border-color: #fecaca;
+      background: #fef2f2;
+      &:hover {
+        background: $danger;
+        color: #fff;
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba($danger, 0.4);
+      }
+    }
+
+    // ── Deal of the Day — per-row action button ──
+    &.dotd-act {
+      color: $primary-2;
+      border-color: $primary-border;
+      background: $primary-bg;
+      &:hover {
+        background: linear-gradient(135deg, $primary-2, $primary);
+        color: #fff;
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba($primary-2, 0.5);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sp-card-head { padding: 12px; }
+    .sp-card-body { padding: 12px; }
+    .sp-search-wrap { max-width: none; flex: 1 1 100%; }
+    .sp-select-wrap { flex: 1 1 calc(50% - 5px); }
+    .sp-select { width: 100%; min-width: 0; }
+    .sp-reset { flex: 1 1 100%; justify-content: center; }
+    .dotd-panel-toggle { flex: 1 1 100%; justify-content: center; }
+  }
+}
+
+// ── Deal of the Day — modal (outside .sp so it isn't clipped by any
+//    overflow:hidden ancestor; uses the same $primary palette as .sp) ──
+.dotd-modal-overlay {
+  position: fixed; inset: 0; background: rgba(24,24,27,.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.dotd-modal {
+  position: relative; width: 100%; max-width: 380px;
+  background: #ffffff; border-radius: 14px; padding: 24px;
+  box-shadow: 0 20px 50px -12px rgba(124,58,237,.35);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  h3 { margin: 0 0 16px; font-size: 16px; font-weight: 800; color: #18181b; }
+}
+.dotd-modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: #f0f0f2; color: #52525b; font-size: 18px; line-height: 1;
+  cursor: pointer;
+  &:hover { background: #e5e7eb; }
+}
+.dotd-modal-product {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; margin-bottom: 16px;
+  background: #f5f3ff; border-radius: 10px;
+  img, .dotd-modal-product-noimg {
+    width: 44px; height: 44px; border-radius: 8px; object-fit: contain;
+    background: #fff; border: 1px solid #e5e7eb; flex-shrink: 0;
+  }
+  .dotd-modal-product-noimg {
+    display: flex; align-items: center; justify-content: center; color: #a1a1aa;
+  }
+}
+.dotd-modal-product-name {
+  font-size: 13px; font-weight: 700; color: #18181b;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dotd-modal-product-code { font-size: 11.5px; color: #a1a1aa; margin-top: 2px; }
+.dotd-modal-label {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12.5px; font-weight: 700; color: #52525b;
+  margin-bottom: 14px;
+  input {
+    height: 40px; border-radius: 10px; border: 1.5px solid #e5e7eb;
+    padding: 0 12px; font-size: 13px; color: #18181b; font-family: inherit;
+    color-scheme: light;
+    &:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.15); }
+  }
+}
+.dotd-modal-error { font-size: 12.5px; color: #dc2626; margin-bottom: 12px; }
+.dotd-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.dotd-modal-cancel, .dotd-modal-save {
+  height: 38px; padding: 0 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+.dotd-modal-cancel { background: #f0f0f2; color: #52525b; }
+.dotd-modal-save {
+  background: linear-gradient(135deg, #7c3aed, #ec4899); color: #fff;
+  &:hover:not(:disabled) { filter: brightness(1.05); }
+}

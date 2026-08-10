@@ -1,0 +1,576 @@
+$orange: #F98F15;
+$navy: #0d1b2e;
+$navy-light: #16273f;
+$text: #111111;
+$muted: #6b6b6b;
+$border: rgba(0, 0, 0, 0.08);
+$white: #ffffff;
+
+.header {
+  position: sticky;
+  top: 0;
+  left: 0; right: 0;
+  z-index: 1000;
+  width: 100%;
+  font-family: inherit;
+}
+
+// ── Top bar ─────────────────────────────────────────────
+.topbar {
+  background: $white;
+  border-bottom: 1px solid $border;
+
+  .topbar-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 16px 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+}
+
+.logo-section {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+
+  .logo-img { height: 55px; width: auto; object-fit: contain; }
+}
+
+// ── Search ──────────────────────────────────────────────
+.search-container { flex: 1; max-width: 640px; margin: 0 auto; }
+
+.search-wrapper { position: relative; display: flex; align-items: center; }
+
+.search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 50px 0 16px;
+  border: 1.5px solid $border;
+  border-radius: 8px 0 0 8px;
+  border-right: none;
+  font-size: 14px;
+  outline: none;
+  background: $white;
+  color: $text;
+  transition: border-color 0.2s ease;
+
+  &:focus { border-color: $navy; }
+  &::placeholder { color: $muted; }
+}
+
+.search-btn {
+  position: absolute;
+  right: 0; top: 0;
+  height: 42px; width: 46px;
+  background: $navy;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  color: $white;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease;
+  &:hover { background: $navy-light; }
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 8px); left: 0; right: 0;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+  z-index: 2000;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s ease;
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(0,0,0,0.04); }
+  img { width: 36px; height: 36px; object-fit: contain; margin-right: 10px; border-radius: 6px; background: rgba(0,0,0,0.05); }
+  .name { font-weight: 600; color: $text; font-size: 13px; }
+  .details { font-size: 11px; color: $muted; display: flex; gap: 8px; margin-top: 2px; }
+}
+
+.no-results { padding: 14px; color: $muted; font-style: italic; text-align: center; font-size: 13px; }
+
+// ── Top bar actions ─────────────────────────────────────
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.account-wrap {
+  position: relative;
+  padding-right: 18px;
+  border-right: 1px solid $border;
+}
+
+.account-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text;
+
+  .account-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.25;
+    small { font-size: 11px; color: $muted; font-weight: 400; }
+    strong { font-size: 13.5px; font-weight: 700; }
+  }
+
+  svg:last-child { width: 14px; height: 14px; color: $muted; }
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 16px); right: 0;
+  background: $white;
+  min-width: 230px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+  border: 1px solid $border;
+  z-index: 5000;
+  overflow: hidden;
+
+  .profile-info {
+    padding: 14px;
+    border-bottom: 1px solid $border;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .profile-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: $orange;
+    color: $white;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .profile-name { font-weight: 600; font-size: 13px; color: $text; }
+  .profile-email { font-size: 11px; color: $muted; margin-top: 2px; }
+
+  .dropdown-menu { padding: 6px 0; }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 14px;
+    color: $muted;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.15s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+
+    svg { width: 16px; height: 16px; }
+    &:hover { background: rgba(0,0,0,0.04); color: $text; }
+  }
+
+  .dropdown-item-count {
+    margin-left: auto;
+    background: $orange;
+    color: $white;
+    font-size: 10.5px;
+    font-weight: 700;
+    min-width: 17px; height: 17px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .dropdown-divider { height: 1px; background: $border; margin: 6px 0; }
+
+  .logout-item {
+    color: #ff6b6b;
+    &:hover { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+  }
+}
+
+// ── Icon-only Wishlist / Cart buttons ────────────────────
+.wishlist-btn,
+.cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  text-decoration: none;
+  color: $text;
+  transition: background 0.15s ease;
+
+  &:hover { background: rgba(0,0,0,0.05); }
+
+  svg { width: 21px; height: 21px; }
+}
+
+.wishlist-icon-wrap,
+.cart-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wishlist-badge {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: $orange;
+  color: $white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px; height: 17px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 3px;
+  border: 2px solid $white;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: $navy;
+  color: $white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px; height: 17px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 3px;
+  border: 2px solid $white;
+}
+
+// ── Sub bar ─────────────────────────────────────────────
+.subbar {
+  background: $navy;
+
+  .subbar-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 46px;
+  }
+}
+
+.cat-wrap { position: relative; flex-shrink: 0; }
+
+.cat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 16px;
+  background: $orange;
+  border: none;
+  color: $white;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  svg:first-child { width: 16px; height: 16px; }
+  svg:last-child { width: 13px; height: 13px; }
+  &:hover { background: darken($orange, 6%); }
+}
+
+// ── Category flyout — now capped in height with a slim scrollbar ────────
+.cat-flyout {
+  position: absolute;
+  top: 100%; left: 0;
+  width: 260px;
+  max-height: 360px;
+  background: $white;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  z-index: 3000;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    &:hover { background: rgba(0,0,0,0.35); }
+  }
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  color: $text;
+  cursor: pointer;
+  border-bottom: 1px solid $border;
+  transition: background 0.15s ease;
+
+  svg { width: 14px; height: 14px; color: $muted; }
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(0,0,0,0.04); color: $orange; }
+}
+
+// ── Nav links (Home / Products / Deals / Brands / Contact Us) ──────────
+.subbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 24px;
+  overflow-x: auto;
+
+  .nav-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 0 20px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+
+    &:hover { color: $white; }
+
+    &.active {
+      color: $white;
+      border-bottom-color: $orange;
+    }
+  }
+}
+
+.subbar-info {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-shrink: 0;
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.85);
+
+    svg { width: 17px; height: 17px; color: $orange; flex-shrink: 0; }
+
+    span {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.25;
+      small { font-size: 10.5px; font-weight: 400; color: rgba(255,255,255,0.6); }
+    }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────
+@media (max-width: 1100px) {
+  .subbar-info { display: none; }
+}
+
+@media (max-width: 900px) {
+  .topbar-content { flex-wrap: wrap; gap: 12px; }
+  .search-container { order: 3; flex-basis: 100%; max-width: none; }
+  .subbar-nav { display: none; }
+}
+
+@media (max-width: 560px) {
+  .account-text { display: none; }
+  .topbar-actions { gap: 10px; }
+  .cat-toggle span { display: none; }
+}
+
+// ── Guest "New customer?" popup ──────────────────────────
+.guest-dropdown {
+  .guest-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+
+    &__label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+  }
+
+  .login-cta-btn {
+    background: #e05c00;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #c14e00;
+    }
+  }
+
+  .dropdown-item {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+// ── Logout confirmation panel ───────────────────────────
+.logout-confirm {
+  position: absolute;
+  top: calc(100% + 16px); right: 0;
+  background: $white;
+  min-width: 250px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+  border: 1px solid $border;
+  z-index: 5000;
+  padding: 16px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    span {
+      font-size: 14px;
+      font-weight: 700;
+      color: $text;
+    }
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $muted;
+    display: flex;
+    padding: 2px;
+    svg { width: 15px; height: 15px; }
+    &:hover { color: $text; }
+  }
+
+  p {
+    font-size: 13px;
+    color: $muted;
+    margin: 0 0 14px;
+    line-height: 1.4;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .cancel-btn, .confirm-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .cancel-btn {
+    background: rgba(0,0,0,0.06);
+    color: $text;
+    &:hover { background: rgba(0,0,0,0.1); }
+  }
+
+  .confirm-btn {
+    background: #ff6b6b;
+    color: $white;
+    &:hover { background: darken(#ff6b6b, 6%); }
+  }
+}
+
+// ── Logout toast ─────────────────────────────────────────
+.logout-toast {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: $navy;
+  color: $white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  z-index: 9000;
+  animation: logoutToastIn 0.2s ease;
+}
+
+@keyframes logoutToastIn {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+// ── Login success toast ───────────────────────────────────
+.login-toast {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a7f4b;
+  color: $white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  z-index: 9000;
+  animation: logoutToastIn 0.2s ease;
+}

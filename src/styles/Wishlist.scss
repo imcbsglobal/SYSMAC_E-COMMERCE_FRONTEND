@@ -1,0 +1,340 @@
+﻿// ============================
+// Wishlist.scss — list-card layout
+// ============================
+
+$wl-border: #e5e7eb;
+$wl-bg: #f4f5f7;
+$wl-text-dark: #111318;
+$wl-text-muted: #6b7280;
+$wl-blue: #eef4ff;
+$wl-radius: 12px;
+
+* { box-sizing: border-box; }
+
+.wishlist-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: $wl-text-dark;
+}
+
+.wishlist-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  font-size: 15px;
+  color: $wl-text-muted;
+}
+
+// ---------- Header ----------
+.wishlist-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+
+  .wishlist-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .wishlist-heart { font-size: 20px; color: $wl-text-dark; }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .wishlist-count {
+      font-size: 14px;
+      font-weight: 500;
+      color: $wl-text-muted;
+    }
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: $wl-text-muted;
+  }
+}
+
+.wishlist-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wishlist-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: #fff;
+  border: 1px solid $wl-border;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $wl-text-dark;
+  cursor: pointer;
+  &:hover { background: #fafafa; }
+}
+
+.wishlist-moveall-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: $wl-text-dark;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  &:hover { background: #000; }
+}
+
+// ---------- Empty state ----------
+.wishlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 90px 24px;
+  background: #fff;
+  border: 1px solid $wl-border;
+  border-radius: $wl-radius;
+
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    font-size: 34px;
+    background: $wl-bg;
+    border-radius: 50%;
+  }
+  h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  p { margin: 0 0 24px; font-size: 14px; color: $wl-text-muted; }
+}
+
+.wishlist-shop-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 26px;
+  background: $wl-text-dark;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+// ---------- Grid ----------
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+
+.wishlist-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid $wl-border;
+  border-radius: $wl-radius;
+  padding: 16px;
+}
+
+.wishlist-remove {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: $wl-text-muted;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  &:hover { color: #ef4444; background: #fef2f2; }
+}
+
+.wishlist-card-top {
+  display: flex;
+  gap: 14px;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.wishlist-img {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  background: $wl-bg;
+  border: 1px solid $wl-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 6px;
+  }
+}
+
+.wishlist-info {
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.wishlist-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: $wl-text-dark;
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+
+.wishlist-spec {
+  font-size: 12px;
+  color: $wl-text-muted;
+  margin-bottom: 4px;
+}
+
+.wishlist-price {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: $wl-text-dark;
+  margin-bottom: 3px;
+}
+
+.wishlist-stock {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.wishlist-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.wishlist-add-btn,
+.wishlist-move-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 0;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  .icon { font-size: 12px; }
+}
+
+.wishlist-add-btn {
+  background: $wl-text-dark;
+  border: 1px solid $wl-text-dark;
+  color: #fff;
+  &:hover:not(:disabled) { background: #000; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.wishlist-move-btn {
+  background: #fff;
+  border: 1px solid $wl-border;
+  color: $wl-text-dark;
+  &:hover:not(:disabled) { background: #fafafa; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+// ---------- Footer banner ----------
+.wishlist-footer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: $wl-blue;
+  border: 1px solid #dbe6fb;
+  border-radius: $wl-radius;
+  flex-wrap: wrap;
+}
+
+.wishlist-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  .wishlist-heart-sm { font-size: 18px; color: $wl-text-dark; }
+
+  .wishlist-footer-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: $wl-text-dark;
+  }
+  .wishlist-footer-sub {
+    font-size: 12.5px;
+    color: $wl-text-muted;
+    margin-top: 2px;
+  }
+}
+
+.wishlist-footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #fff;
+  border: 1px solid $wl-border;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $wl-text-dark;
+  text-decoration: none;
+  &:hover { background: #fafafa; }
+  .arrow { font-size: 14px; }
+}
+
+// ---------- Toast ----------
+.wishlist-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(20, 20, 26, 0.96);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4);
+}

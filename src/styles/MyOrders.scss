@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+$primary:     #7c3aed;
+$primary-h:   #6d28d9;
+$primary-2:   #ec4899;
+$primary-bg:  #f5f3ff;
+$success:     #059669;
+$warning:     #d97706;
+$danger:      #dc2626;
+$card:        #ffffff;
+$border:      #e9e9ec;
+$surface:     #fbfbfc;
+$text:        #14141a;
+$text-sec:    #52525b;
+$text-muted:  #9c9ca6;
+$radius:      16px;
+
+.mo-page {
+  background: radial-gradient(circle at 15% 0%, #f8f6ff 0%, $surface 45%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 60vh;
+  padding: 32px 20px 60px;
+  * { box-sizing: border-box; }
+}
+
+.mo-container { max-width: 780px; margin: 0 auto; }
+
+.mo-header {
+  margin-bottom: 24px;
+  h1 { font-size: 26px; font-weight: 800; color: $text; margin: 0 0 6px; letter-spacing: -0.02em; }
+  p { font-size: 14px; color: $text-muted; margin: 0; }
+}
+
+.mo-loading, .mo-error, .mo-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 60px 20px; text-align: center; color: $text-muted; font-size: 14px;
+  background: $card; border: 1px solid $border; border-radius: $radius;
+}
+
+.mo-error {
+  color: $danger;
+  button {
+    height: 38px; padding: 0 20px; background: linear-gradient(135deg, $primary, $primary-2);
+    color: #fff; border: none; border-radius: 11px; cursor: pointer; font-weight: 700; font-family: inherit;
+  }
+}
+
+.mo-empty span { max-width: 320px; }
+
+.mo-spinner {
+  width: 30px; height: 30px; border: 3px solid #f0f0f2; border-top-color: $primary;
+  border-radius: 50%; animation: mo-spin 0.7s linear infinite;
+}
+@keyframes mo-spin { to { transform: rotate(360deg); } }
+
+.mo-list { display: flex; flex-direction: column; gap: 18px; }
+
+.mo-card {
+  background: $card; border: 1px solid $border; border-radius: $radius; padding: 20px 22px;
+  box-shadow: 0 1px 2px rgba(20,20,26,.04), 0 12px 28px -14px rgba(124,58,237,.14);
+}
+
+.mo-card__top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px;
+
+  div { display: flex; flex-direction: column; gap: 3px; }
+}
+
+.mo-card__number { font-size: 15px; font-weight: 800; color: $primary-h; }
+.mo-card__date { font-size: 12px; color: $text-muted; }
+
+.mo-status-pill {
+  padding: 5px 13px; border-radius: 999px; font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; height: fit-content;
+
+  &--pending   { background: #fffbeb; color: $warning; }
+  &--confirmed { background: $primary-bg; color: $primary-h; }
+  &--delivered { background: #ecfdf5; color: #047857; }
+}
+
+// ── Timeline ──────────────────────────────────────────────────
+.mo-timeline {
+  display: flex; align-items: flex-start; margin-bottom: 20px; padding: 0 4px;
+}
+
+.mo-timeline__step {
+  flex: 1; display: flex; flex-direction: column; align-items: center; position: relative;
+
+  span { font-size: 11px; font-weight: 600; color: $text-muted; margin-top: 6px; text-align: center; }
+  &--done, .mo-timeline__label--done { color: $primary-h; }
+}
+
+.mo-timeline__dot {
+  width: 26px; height: 26px; border-radius: 50%; background: $surface; border: 2px solid $border;
+  display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+  color: $text-muted; z-index: 1;
+
+  &--done { background: linear-gradient(135deg, $primary, $primary-2); border-color: transparent; color: #fff; }
+}
+
+.mo-timeline__label--done { color: $primary-h; font-weight: 700; }
+
+.mo-timeline__line {
+  position: absolute; top: 13px; left: 50%; width: 100%; height: 2px; background: $border; z-index: 0;
+  &--done { background: linear-gradient(90deg, $primary, $primary-2); }
+}
+
+// ── Items ─────────────────────────────────────────────────────
+.mo-items {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 0;
+  border-top: 1px dashed $border; border-bottom: 1px dashed $border; margin-bottom: 14px;
+}
+
+.mo-item {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: $text-sec;
+
+  &__name { flex: 1; font-weight: 600; color: $text; }
+  &__qty { color: $text-muted; }
+  &__price { font-weight: 700; color: $text; min-width: 70px; text-align: right; }
+}
+
+// ── Footer ────────────────────────────────────────────────────
+.mo-card__footer {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  font-size: 12.5px; color: $text-muted;
+}
+
+.mo-card__total { font-weight: 800; color: $text; font-size: 14px; }
+
+@media (max-width: 600px) {
+  .mo-timeline__step span { font-size: 10px; }
+}

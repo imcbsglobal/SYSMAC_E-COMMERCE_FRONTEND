@@ -1,0 +1,398 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+$primary:     #7c3aed;
+$primary-h:   #6d28d9;
+$primary-2:   #ec4899;
+$primary-bg:  #f5f3ff;
+$primary-border: #ddd6fe;
+$success:     #059669;
+$danger:      #dc2626;
+$card:        #ffffff;
+$border:      #e5e7eb;
+$surface:     #fafafa;
+$surface-2:   #f0f0f2;
+$text:        #18181b;
+$text-sec:    #52525b;
+$text-muted:  #a1a1aa;
+$radius:      14px;
+$shadow-card: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px -12px rgba(124,58,237,.15);
+
+.cp {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: $text;
+  font-size: 14px;
+  * { box-sizing: border-box; }
+
+  .cp-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 26px;
+    background: $card;
+    border: 1px solid $border;
+    border-left: 5px solid $primary;
+    border-radius: $radius;
+    margin-bottom: 20px;
+    gap: 12px;
+    box-shadow: $shadow-card;
+  }
+
+  .cp-breadcrumb {
+    font-size: 11px;
+    color: $primary;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+  }
+
+  .cp-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: $text;
+    letter-spacing: -0.02em;
+  }
+
+  .cp-subtitle {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: $text-muted;
+  }
+
+  .cp-add {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, $primary, $primary-2);
+    cursor: pointer;
+    box-shadow: 0 10px 22px -8px rgba(124,58,237,.55);
+    transition: filter 0.15s ease, transform 0.15s ease;
+
+    &:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    &:active { filter: brightness(0.95); transform: translateY(0); }
+  }
+
+  .cp-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 16px 18px;
+    background: $card;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: $shadow-card;
+  }
+
+  .cp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .cp-field-search {
+    flex: 1 1 240px;
+    min-width: 200px;
+    max-width: 300px;
+  }
+
+  .cp-field-action {
+    min-width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+  }
+
+  .cp-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-muted;
+  }
+
+  .cp-search-wrap { position: relative; width: 100%; }
+
+  .cp-search-icon {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    color: $text-muted; pointer-events: none;
+  }
+
+  .cp-search {
+    width: 100%; height: 38px; padding: 0 32px 0 34px;
+    border: 1.5px solid $border; border-radius: 10px;
+    font-size: 14px; font-family: inherit; background: $surface; color: $text;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &::placeholder { color: $text-muted; }
+    &:hover { border-color: #d4d4d8; }
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+  }
+
+  .cp-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 24px; height: 24px; border: none; background: transparent;
+    color: $text-muted; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
+    &:hover { background: $surface-2; color: $danger; }
+  }
+
+  .cp-select {
+    height: 38px; min-width: 140px; padding: 0 34px 0 12px;
+    border: 1.5px solid $border; border-radius: 10px;
+    font-size: 14px; font-family: inherit; color: $text; cursor: pointer; appearance: none;
+    background: $surface
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='none' stroke='%23a1a1aa' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+      no-repeat right 12px center;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    &:hover { border-color: #d4d4d8; }
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+  }
+
+  .cp-reset {
+    height: 38px; padding: 0 16px; border: 1.5px solid $border; border-radius: 10px;
+    font-size: 14px; font-weight: 600; font-family: inherit; color: $text-sec;
+    background: $surface; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s ease;
+
+    &:hover { border-color: $primary; color: $primary-h; background: $primary-bg; }
+  }
+
+  .cp-count {
+    font-size: 12.5px;
+    color: $text-muted;
+    margin-bottom: 10px;
+    padding: 0 4px;
+    span { font-weight: 700; color: $text-sec; }
+  }
+
+  .cp-loading {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 60px; color: $text-muted; font-size: 14px;
+    background: $card; border: 1px solid $border; border-radius: $radius;
+  }
+
+  .cp-spinner {
+    width: 18px; height: 18px; border: 3px solid $surface-2;
+    border-top-color: $primary; border-radius: 50%;
+    animation: cp-spin 0.7s linear infinite;
+  }
+
+  @keyframes cp-spin { to { transform: rotate(360deg); } }
+
+  .cp-empty {
+    text-align: center; padding: 70px 20px; color: $text-muted;
+    display: flex; flex-direction: column; align-items: center;
+    background: $card; border: 1px solid $border; border-radius: $radius;
+  }
+  .cp-empty-title { font-size: 16px; font-weight: 700; color: $text-sec; margin-bottom: 4px; }
+  .cp-empty-sub { font-size: 13px; }
+
+  .cp-table-wrap {
+    border: 1px solid $border;
+    border-radius: $radius;
+    overflow: hidden;
+    overflow-x: auto;
+    box-shadow: $shadow-card;
+  }
+
+  .cp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+    background: $card;
+
+    thead th {
+      background: linear-gradient(135deg, $primary-bg, #fdf2f8);
+      text-align: left;
+      padding: 13px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $primary-h;
+      border-bottom: 2px solid $primary-border;
+      border-right: 1px solid $primary-border;
+
+      &:last-child { border-right: none; }
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid $border;
+      border-right: 1px solid $border;
+      color: $text-sec;
+      vertical-align: middle;
+
+      &:last-child { border-right: none; }
+    }
+
+    tbody tr {
+      transition: background 0.12s ease;
+
+      &:nth-child(even) { background: $surface; }
+      &:last-child td { border-bottom: none; }
+      &:hover { background: $primary-bg; }
+    }
+  }
+
+  .cp-name-cell {
+    font-weight: 700;
+    color: $text;
+  }
+
+  .cp-img {
+    width: 34px; height: 34px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid $border;
+    display: block;
+  }
+
+  .cp-no-img {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: $surface-2;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-size: 8px;
+    color: $text-muted;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .cp-price {
+    font-weight: 700;
+    color: $primary-h;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cp-desc-cell { max-width: 180px; white-space: normal; }
+  .cp-desc {
+    max-height: 36px; overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    font-size: 12px; line-height: 1.45; color: $text-muted;
+  }
+
+  .cp-loz {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 16px;
+
+    &.success  { background: #d1fae5; color: #047857; }
+    &.removed  { background: #fee2e2; color: #b91c1c; }
+  }
+
+  .cp-stock {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 16px;
+
+    &.high   { background: #d1fae5; color: #047857; }
+    &.medium { background: #fef3c7; color: #92400e; }
+    &.low    { background: #fee2e2; color: #b91c1c; }
+  }
+
+  .cp-bs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #fdf2f8, $primary-bg);
+    color: $primary-2;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    svg { flex-shrink: 0; }
+  }
+
+  .cp-regular {
+    color: $text-muted;
+    font-size: 12px;
+  }
+
+  .cp-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .cp-act {
+    width: 32px; height: 32px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer; transition: all 0.15s ease;
+    background: $card;
+
+    &.edit {
+      color: $primary;
+      border-color: $primary-border;
+      background: $primary-bg;
+      &:hover {
+        background: linear-gradient(135deg, $primary, $primary-2);
+        color: #fff;
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba($primary, 0.5);
+      }
+    }
+
+    &.del {
+      color: $danger;
+      border-color: #fecaca;
+      background: #fef2f2;
+      &:hover {
+        background: $danger;
+        color: #fff;
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba($danger, 0.4);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cp-page-header { flex-direction: column; align-items: stretch; }
+    .cp-add { width: 100%; justify-content: center; }
+    .cp-toolbar { gap: 10px; }
+    .cp-field { flex: 1 1 100%; }
+    .cp-field-search { max-width: none; }
+    .cp-field-action { margin-left: 0; }
+  }
+}
