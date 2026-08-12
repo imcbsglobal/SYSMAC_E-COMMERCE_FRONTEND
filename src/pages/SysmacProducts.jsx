@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { productsAPI, dealsAPI } from "../api";
 import AdminLayout from "../components/AdminLayout";
 import "../styles/SysmacProducts.scss";
+
+const rowKey = (p) => p.row_id || `${p.code}-${p.barcode || "0"}`;
 
 export default function SysmacProducts() {
   const [products, setProducts] = useState([]);
@@ -16,7 +18,10 @@ export default function SysmacProducts() {
   const [statusFilter, setStatusFilter] = useState("");
   const [bestsellerFilter, setBestsellerFilter] = useState("");
   const navigate = useNavigate();
-  const cancelledRef = useRef(false);
+
+  // ── Pagination ───────────────────────────────────────────────
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   // ── Deal of the Day ──────────────────────────────────────────
   const [deals, setDeals] = useState([]);
@@ -100,22 +105,42 @@ export default function SysmacProducts() {
   };
   const activeDealCount = deals.filter((d) => d.status === "active" || d.status === "scheduled").length;
 
+  // ── Load all Sysmac products, paging through the API ───────────
+  // NOTE: under React 18 StrictMode (dev only), React deliberately runs
+  // this effect twice (mount → cleanup → mount) to surface bugs like the
+  // one that used to live here. The old code used a *shared* `useRef` as
+  // its cancellation flag, which both effect runs read/write — so the
+  // 2nd run's mount would reset the flag the 1st run's cleanup had just
+  // set to true, letting the 1st run's stale in-flight fetch keep
+  // appending pages once it resolved. Net effect: everything got loaded
+  // twice, and the product count doubled (e.g. 40 instead of 20).
+  //
+  // Fix: use a `cancelled` variable that's local to *this* effect
+  // invocation (a closure variable, not a ref). Each run gets its own
+  // private flag that only its own cleanup can set — so a stale run can
+  // never be revived by a newer run. We also de-dupe by row key as a
+  // defensive safety net in case pages ever overlap for any other reason.
   useEffect(() => {
-    cancelledRef.current = false;
+    let cancelled = false;
 
     const loadAll = async () => {
       let page = 1;
       let numPages = 1;
 
-      while (page <= numPages && !cancelledRef.current) {
+      while (page <= numPages && !cancelled) {
         try {
           const r = await productsAPI.adminGetSysmac(page);
           const data = r.data;
           numPages = data.num_pages || 1;
 
-          if (cancelledRef.current) return;
+          if (cancelled) return;
 
-          setProducts((prev) => (page === 1 ? data.results : [...prev, ...data.results]));
+          setProducts((prev) => {
+            if (page === 1) return data.results;
+            const seen = new Set(prev.map(rowKey));
+            const fresh = data.results.filter((x) => !seen.has(rowKey(x)));
+            return [...prev, ...fresh];
+          });
           setTotalCount(data.count || 0);
           setLoadedCount((prev) => (page === 1 ? data.results.length : prev + data.results.length));
 
@@ -129,13 +154,18 @@ export default function SysmacProducts() {
         page += 1;
       }
 
-      if (!cancelledRef.current) setLoadingMore(false);
+      if (!cancelled) setLoadingMore(false);
     };
 
     loadAll();
-    return () => { cancelledRef.current = true; };
+    return () => { cancelled = true; };
   }, []);
 
+  // A product `code` can now appear as multiple rows (one per barcode/
+  // variant from ProductBatch), so deleting by code removes ALL rows that
+  // share that code — matching the backend, where the EditedAPIProduct
+  // override being deleted applies to the whole product code, not just
+  // one barcode/variant row.
   const deleteProduct = async (code) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     await productsAPI.adminDeleteSysmac(code);
@@ -160,24 +190,64 @@ export default function SysmacProducts() {
     return Array.from(s).sort((a, b) => a.localeCompare(b));
   }, [products]);
 
-  const filtered = products.filter((p) => {
-    const name = (p.edited_name || p.name || "").toLowerCase();
-    const product = (p.edited_product || p.product || "").toLowerCase();
-    const company = (p.edited_company || p.company || "").toLowerCase();
-    const brand = (p.edited_brand || p.brand || "").toLowerCase();
-
+  // ── Search covers every visible column: code, barcode, name,
+  //    product, category, company, brand, price, original price,
+  //    status (active/inactive) and bestseller (bestseller/regular).
+  const filtered = useMemo(() => {
     const term = search.toLowerCase().trim();
-    const matchSearch = !term ||
-      name.includes(term) || product.includes(term) ||
-      company.includes(term) || brand.includes(term);
 
-    const matchBrand = !brandFilter || brand === brandFilter.toLowerCase();
-    const matchProduct = !productFilter || product === productFilter.toLowerCase();
-    const matchStatus = !statusFilter || (statusFilter === "active" ? p.is_active : !p.is_active);
-    const matchBs = !bestsellerFilter || (bestsellerFilter === "yes" ? p.is_bestseller : !p.is_bestseller);
+    return products.filter((p) => {
+      const name = (p.edited_name || p.name || "").toLowerCase();
+      const product = (p.edited_product || p.product || "").toLowerCase();
+      const category = (p.edited_category || p.category || "").toLowerCase();
+      const company = (p.edited_company || p.company || "").toLowerCase();
+      const brand = (p.edited_brand || p.brand || "").toLowerCase();
+      const barcode = (p.barcode || "").toLowerCase();
+      const code = (p.code || "").toLowerCase();
+      const price = String(p.edited_price ?? p.price ?? "").toLowerCase();
+      const originalPrice = String(p.original_price ?? "").toLowerCase();
+      const status = p.is_active ? "active" : "inactive";
+      const bestseller = p.is_bestseller ? "bestseller" : "regular";
 
-    return matchSearch && matchBrand && matchProduct && matchStatus && matchBs;
-  });
+      const matchSearch = !term ||
+        name.includes(term) || product.includes(term) ||
+        category.includes(term) || company.includes(term) ||
+        brand.includes(term) || barcode.includes(term) ||
+        code.includes(term) || price.includes(term) ||
+        originalPrice.includes(term) || status.includes(term) ||
+        bestseller.includes(term);
+
+      const matchBrand = !brandFilter || brand === brandFilter.toLowerCase();
+      const matchProduct = !productFilter || product === productFilter.toLowerCase();
+      const matchStatus = !statusFilter || (statusFilter === "active" ? p.is_active : !p.is_active);
+      const matchBs = !bestsellerFilter || (bestsellerFilter === "yes" ? p.is_bestseller : !p.is_bestseller);
+
+      return matchSearch && matchBrand && matchProduct && matchStatus && matchBs;
+    });
+  }, [products, search, brandFilter, productFilter, statusFilter, bestsellerFilter]);
+
+  // Reset to page 1 whenever the result set could have changed shape.
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, brandFilter, productFilter, statusFilter, bestsellerFilter, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * pageSize;
+  const pageEnd = Math.min(pageStart + pageSize, filtered.length);
+  const paginated = filtered.slice(pageStart, pageEnd);
+
+  // Windowed page-number list: 1 … (current-1, current, current+1) … last
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    const add = (n) => { if (!pages.includes(n) && n >= 1 && n <= totalPages) pages.push(n); };
+    add(1);
+    add(safePage - 1);
+    add(safePage);
+    add(safePage + 1);
+    add(totalPages);
+    return pages.sort((a, b) => a - b);
+  }, [safePage, totalPages]);
 
   const resetAll = () => {
     setSearch(""); setBrandFilter(""); setProductFilter("");
@@ -207,7 +277,7 @@ export default function SysmacProducts() {
                 </svg>
                 <input
                   className="sp-search"
-                  placeholder="Search by name, company, brand, product…"
+                  placeholder="Search by name, code, barcode, brand, price, status…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -342,89 +412,150 @@ export default function SysmacProducts() {
                 <div className="sp-empty-sub">Try adjusting your search or filters</div>
               </div>
             ) : (
-              <div className="sp-table-wrap">
-                <table className="sp-table">
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Image</th>
-                      <th>Name</th>
-                      <th>Product</th>
-                      <th>Category</th>
-                      <th>Company</th>
-                      <th>Brand</th>
-                      <th>Price</th>
-                      <th>Original Price</th>
-                      <th>Status</th>
-                      <th>Bestseller</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((p) => (
-                      <tr key={p.code}>
-                        <td><code className="sp-code">{p.code}</code></td>
-                        <td>
-                          {p.edited_image || p.image
-                            ? <img src={p.edited_image || p.image} alt="" className="sp-img" />
-                            : <div className="sp-no-img">No image</div>}
-                        </td>
-                        <td className="sp-strong">{p.edited_name || p.name}</td>
-                        <td>{p.edited_product || p.product}</td>
-                        <td>{p.edited_category || p.category}</td>
-                        <td>{p.edited_company || p.company}</td>
-                        <td>{p.edited_brand || p.brand}</td>
-                        <td className="sp-strong">₹{p.edited_price ?? p.price}</td>
-                        <td className="sp-muted">₹{p.original_price}</td>
-                        <td>
-                          <span className={"sp-badge " + (p.is_active ? "active" : "inactive")}>
-                            {p.is_active ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td>
-                          {p.is_bestseller
-                            ? <span className="sp-bs">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10">
-                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                </svg>
-                                Bestseller
-                              </span>
-                            : <span className="sp-regular">Regular</span>}
-                        </td>
-                        <td>
-                          <div className="sp-actions">
-                            <button className="sp-act dotd-act" title="Set as Deal of the Day"
-                              onClick={() => openDealModal(p)}>
-                              <i className="fas fa-bolt" />
-                              Deal
-                            </button>
-                            <button className="sp-act edit" title="Edit"
-                              onClick={() => navigate(`/admin/sysmac-products/edit/${p.code}`)}>
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                              </svg>
-                              Edit
-                            </button>
-                            {p.is_edited && (
-                              <button className="sp-act del" title="Delete"
-                                onClick={() => deleteProduct(p.code)}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
-                                  <polyline points="3 6 5 6 21 6"/>
-                                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                  <path d="M10 11v6"/><path d="M14 11v6"/>
-                                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                                </svg>
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </td>
+              <>
+                <div className="sp-table-wrap">
+                  <table className="sp-table">
+                    <thead>
+                      <tr>
+                        <th>Code</th>
+                        <th>Barcode</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Company</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Original Price</th>
+                        <th>Status</th>
+                        <th>Bestseller</th>
+                        <th>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {paginated.map((p) => (
+                        <tr key={rowKey(p)}>
+                          <td><code className="sp-code">{p.code}</code></td>
+                          <td><code className="sp-code">{p.barcode || "—"}</code></td>
+                          <td>
+                            {p.edited_image || p.image
+                              ? <img src={p.edited_image || p.image} alt="" className="sp-img" />
+                              : <div className="sp-no-img">No image</div>}
+                          </td>
+                          <td className="sp-strong">{p.edited_name || p.name}</td>
+                          <td>{p.edited_product || p.product}</td>
+                          <td>{p.edited_category || p.category}</td>
+                          <td>{p.edited_company || p.company}</td>
+                          <td>{p.edited_brand || p.brand}</td>
+                          <td className="sp-strong">₹{p.edited_price ?? p.price}</td>
+                          <td className="sp-muted">₹{p.original_price}</td>
+                          <td>
+                            <span className={"sp-badge " + (p.is_active ? "active" : "inactive")}>
+                              {p.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td>
+                            {p.is_bestseller
+                              ? <span className="sp-bs">
+                                  <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                  </svg>
+                                  Bestseller
+                                </span>
+                              : <span className="sp-regular">Regular</span>}
+                          </td>
+                          <td>
+                            <div className="sp-actions">
+                              <button className="sp-act dotd-act" title="Set as Deal of the Day"
+                                onClick={() => openDealModal(p)}>
+                                <i className="fas fa-bolt" />
+                                Deal
+                              </button>
+                              <button className="sp-act edit" title="Edit"
+                                onClick={() => navigate(`/admin/sysmac-products/edit/${p.code}`)}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                Edit
+                              </button>
+                              {p.is_edited && (
+                                <button className="sp-act del" title="Delete"
+                                  onClick={() => deleteProduct(p.code)}>
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                  </svg>
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ── Pagination ── */}
+                <div className="sp-pagination">
+                  <div className="sp-pagination-info">
+                    Showing {filtered.length === 0 ? 0 : pageStart + 1}–{pageEnd} of {filtered.length}
+                  </div>
+
+                  <div className="sp-pagination-controls">
+                    <button
+                      className="sp-page-btn"
+                      disabled={safePage === 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    >
+                      Prev
+                    </button>
+
+                    {pageNumbers.map((n, i) => {
+                      const prev = pageNumbers[i - 1];
+                      const showEllipsis = prev !== undefined && n - prev > 1;
+                      return (
+                        <span key={n} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          {showEllipsis && <span className="sp-page-ellipsis">…</span>}
+                          <button
+                            className={"sp-page-btn sp-page-num" + (n === safePage ? " active" : "")}
+                            onClick={() => setCurrentPage(n)}
+                          >
+                            {n}
+                          </button>
+                        </span>
+                      );
+                    })}
+
+                    <button
+                      className="sp-page-btn"
+                      disabled={safePage === totalPages}
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    >
+                      Next
+                    </button>
+                  </div>
+
+                  <div className="sp-select-wrap sp-pagesize-wrap">
+                    <select
+                      className="sp-select"
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                    >
+                      <option value={10}>10 / page</option>
+                      <option value={25}>25 / page</option>
+                      <option value={50}>50 / page</option>
+                      <option value={100}>100 / page</option>
+                    </select>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -444,7 +575,10 @@ export default function SysmacProducts() {
                 <div className="dotd-modal-product-name">
                   {dealModalProduct.edited_name || dealModalProduct.name}
                 </div>
-                <div className="dotd-modal-product-code">Code: {dealModalProduct.code}</div>
+                <div className="dotd-modal-product-code">
+                  Code: {dealModalProduct.code}
+                  {dealModalProduct.barcode ? ` · Barcode: ${dealModalProduct.barcode}` : ""}
+                </div>
               </div>
             </div>
 

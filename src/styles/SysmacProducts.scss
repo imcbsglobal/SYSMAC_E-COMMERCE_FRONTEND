@@ -410,6 +410,64 @@ $shadow-card: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px -12px rgba(124,58,237,.15);
     }
   }
 
+  // ── Pagination ──
+  .sp-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .sp-pagination-info {
+    font-size: 12.5px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  .sp-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .sp-page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    background: $card;
+    color: $text-sec;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) { border-color: $primary; color: $primary-h; background: $primary-bg; }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    &.sp-page-num.active {
+      background: linear-gradient(135deg, $primary, $primary-2);
+      color: #fff;
+      border-color: transparent;
+    }
+  }
+
+  .sp-page-ellipsis {
+    color: $text-muted;
+    font-size: 13px;
+    padding: 0 2px;
+  }
+
+  .sp-pagesize-wrap .sp-select {
+    min-width: 110px;
+    height: 34px;
+  }
+
   .sp-strong { font-weight: 700; color: $text; }
   .sp-muted  { color: $text-muted; }
 
@@ -550,6 +608,9 @@ $shadow-card: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px -12px rgba(124,58,237,.15);
     .sp-select { width: 100%; min-width: 0; }
     .sp-reset { flex: 1 1 100%; justify-content: center; }
     .dotd-panel-toggle { flex: 1 1 100%; justify-content: center; }
+    .sp-pagination { flex-direction: column; align-items: stretch; }
+    .sp-pagination-controls { justify-content: center; }
+    .sp-pagesize-wrap { align-self: center; }
   }
 }
 
