@@ -20,7 +20,10 @@ export default function AllProducts() {
   const [selectedBrands, setSelectedBrands] = useState(brandParam ? [brandParam] : []);
   const [priceRange, setPriceRange] = useState(20000);
   const [sortBy, setSortBy] = useState("featured");
-  const [searchQuery, setSearchQuery] = useState("");
+  // Seeded from ?search= in the URL (Navbar's search button/Enter lands
+  // here with that param set) so results are populated immediately
+  // instead of showing an empty search box on arrival.
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [page, setPage] = useState(1);
   const perPage = 15;
 
@@ -176,6 +179,16 @@ export default function AllProducts() {
     setPage(1);
   }, [brandParam]);
 
+  // Keep the search box in sync with ?search= in the URL — this is what
+  // makes the Navbar's search button/Enter (which navigates to
+  // /products?search=...) actually populate results here, including when
+  // searching again while already on this page.
+  useEffect(() => {
+    const s = searchParams.get("search") || "";
+    setSearchQuery(s);
+    setPage(1);
+  }, [searchParams]);
+
   const toggleBrand = (brand) => {
     setSelectedBrands((prev) => {
       const isSelected = prev.some((b) => b.toLowerCase() === brand.toLowerCase());
@@ -197,13 +210,28 @@ export default function AllProducts() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    const val = e.target.value;
+    setSearchQuery(val);
     setPage(1);
+
+    // Keep the URL's ?search= param in sync with manual typing too, so the
+    // address bar reflects the active search and it survives a refresh.
+    setSearchParams((params) => {
+      const p = new URLSearchParams(params);
+      if (val.trim()) p.set("search", val);
+      else p.delete("search");
+      return p;
+    });
   };
 
   const clearSearch = () => {
     setSearchQuery("");
     setPage(1);
+    setSearchParams((params) => {
+      const p = new URLSearchParams(params);
+      p.delete("search");
+      return p;
+    });
   };
 
   const filteredProducts = useMemo(() => {

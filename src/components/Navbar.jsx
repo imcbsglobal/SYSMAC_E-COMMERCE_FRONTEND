@@ -77,6 +77,28 @@ const Icon = ({ name }) => {
   );
 };
 
+// Reads "user" from localStorage, but only trusts it if a matching "access"
+// token also exists. If "user" is present without a valid "access" token,
+// it's a stale leftover from a previous/expired/cleared session — treat as
+// logged out and wipe the stale key so it doesn't keep tripping this check.
+// This is what previously caused the Navbar to show a logged-in account
+// (sometimes an old admin/test account) even when nobody was really
+// authenticated.
+const getStoredUser = () => {
+  const token = localStorage.getItem("access");
+  const raw = localStorage.getItem("user");
+  if (!token || !raw) {
+    if (raw && !token) localStorage.removeItem("user");
+    return null;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
+};
+
 export default function Navbar() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -91,6 +113,11 @@ export default function Navbar() {
   const [logoutToast, setLogoutToast] = useState(false);
   const [loginToast, setLoginToast] = useState(false);
 
+  // Mobile hamburger menu (nav links + categories + search, all collapsed
+  // into a slide-down panel below the topbar on small screens).
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileCatOpen, setMobileCatOpen] = useState(false);
+
   // Categories now come live from the Sysmac API (productproduct/) via
   // /sysmac-product-types/, instead of the old hardcoded CATEGORIES array.
   const [categories, setCategories] = useState([]);
@@ -99,12 +126,33 @@ export default function Navbar() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  // "user" is now real React state, kept in sync with localStorage instead
+  // of being re-read from localStorage on every render. It's seeded lazily
+  // from getStoredUser() so the initial render is already correct, and it
+  // self-heals stale localStorage (see getStoredUser above).
+  const [user, setUser] = useState(getStoredUser);
 
   const profileRef = useRef(null);
   const searchRef = useRef(null);
   const catRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const timer = useRef(null);
+
+  // Keep `user` in sync with localStorage/session changes: login, logout,
+  // token expiry cleanup elsewhere, or another tab changing storage. Reuses
+  // the "cart-updated" event that login/logout already dispatch, so no new
+  // event wiring is needed elsewhere in the app.
+  useEffect(() => {
+    const syncUser = () => setUser(getStoredUser());
+    syncUser();
+    window.addEventListener("cart-updated", syncUser);
+    window.addEventListener("storage", syncUser);
+    return () => {
+      window.removeEventListener("cart-updated", syncUser);
+      window.removeEventListener("storage", syncUser);
+    };
+  }, []);
 
   // Close open panels when clicking outside them
   useEffect(() => {
@@ -116,10 +164,23 @@ export default function Navbar() {
       }
       if (searchRef.current && !searchRef.current.contains(e.target)) setShowDrop(false);
       if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target) &&
+        !e.target.closest?.(".mobile-toggle-btn")
+      ) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  // Close the mobile menu automatically on route change.
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMobileCatOpen(false);
+  }, [location.pathname]);
 
   // Auto-show the "New customer?" login popup on initial load for guests.
   useEffect(() => {
@@ -227,9 +288,14 @@ export default function Navbar() {
     }, 250);
   };
 
+  // Navigates to the full products listing with the search term applied —
+  // AllProducts.jsx reads the ?search= param on mount/update and filters
+  // its loaded catalogue by it, so this actually lands the user on a
+  // populated results page instead of the bare home page.
   const doSearch = () => {
     setShowDrop(false);
-    navigate(`/?search=${encodeURIComponent(query.trim())}`);
+    setMobileMenuOpen(false);
+    navigate(`/products?search=${encodeURIComponent(query.trim())}`);
   };
 
   // Logged-in users get the account dropdown. Guests get a "New customer?"
@@ -248,19 +314,22 @@ export default function Navbar() {
   // overlay click, or the X button) just dismisses the modal itself.
   const goToLogin = () => {
     setLoginPopupOpen(false);
+    setMobileMenuOpen(false);
     setShowLoginModal(true);
   };
 
   // Closing the modal can mean "logged in" or "dismissed" — we tell the two
-  // apart by checking whether a user now exists in localStorage. If
-  // LoginModal writes the user there on success before calling onClose(),
-  // this fires the success toast and refreshes cart/wishlist for the new
-  // session; a plain overlay/X close leaves localStorage empty and no toast
-  // shows.
+  // apart by checking whether a valid user now exists (via getStoredUser,
+  // which also requires a matching access token). If LoginModal writes the
+  // user + tokens to localStorage on success before calling onClose(), this
+  // updates local `user` state, fires the success toast, and refreshes
+  // cart/wishlist for the new session; a plain overlay/X close leaves
+  // localStorage empty and no toast shows.
   const closeLoginModal = () => {
     setShowLoginModal(false);
-    const loggedInUser = JSON.parse(localStorage.getItem("user") || "null");
+    const loggedInUser = getStoredUser();
     if (loggedInUser) {
+      setUser(loggedInUser);
       window.dispatchEvent(new Event("cart-updated"));
       setLoginToast(true);
       setTimeout(() => setLoginToast(false), 1800);
@@ -280,7 +349,9 @@ export default function Navbar() {
   const confirmLogout = () => {
     setLogoutConfirmOpen(false);
     setProfileOpen(false);
+    setMobileMenuOpen(false);
     localStorage.clear();
+    setUser(null);
     window.dispatchEvent(new Event("cart-updated"));
     setLogoutToast(true);
     setTimeout(() => {
@@ -295,6 +366,8 @@ export default function Navbar() {
   // not a slug.
   const goToCategory = (name) => {
     setCatOpen(false);
+    setMobileMenuOpen(false);
+    setMobileCatOpen(false);
     navigate(`/products?category=${encodeURIComponent(name)}`);
   };
 
@@ -305,6 +378,15 @@ export default function Navbar() {
       {/* ── Top bar: logo, search, account, wishlist, cart ──────────── */}
       <div className="topbar">
         <div className="topbar-content">
+          {/* Mobile hamburger — only visible under the small-screen breakpoint */}
+          <button
+            className="mobile-toggle-btn"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            aria-label="Toggle menu"
+          >
+            <Icon name={mobileMenuOpen ? "close" : "menu"} />
+          </button>
+
           <Link to="/" className="logo-section">
             <img src={logo} alt="SYSMAC" className="logo-img" />
           </Link>
@@ -331,7 +413,16 @@ export default function Navbar() {
                       <div
                         className="autocomplete-item"
                         key={`${it.type}-${it.code}`}
-                        onClick={() => { setShowDrop(false); navigate(`/product/${it.code}`); }}
+                        onClick={() => {
+                          setShowDrop(false);
+                          setMobileMenuOpen(false);
+                          // Product detail route is /product/:type/:code —
+                          // it.id is the custom product's numeric id when
+                          // type is "custom", otherwise it.code is the
+                          // Sysmac product code. Matches ProductCard's
+                          // navigation in AllProducts.jsx.
+                          navigate(`/product/${it.type}/${it.type === "custom" ? it.id : it.code}`);
+                        }}
                       >
                         <img src={it.image || "https://via.placeholder.com/40"} alt="" />
                         <div className="info">
@@ -515,6 +606,68 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile slide-down menu: nav links + categories ──────────── */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu" ref={mobileMenuRef} onClick={(e) => e.stopPropagation()}>
+          <nav className="mobile-menu__links">
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`mobile-menu__link${isActive(l.to) ? " active" : ""}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mobile-menu__cats">
+            <button
+              className="mobile-menu__cats-toggle"
+              onClick={() => setMobileCatOpen((o) => !o)}
+            >
+              <span>Shop by Categories</span>
+              <Icon name={mobileCatOpen ? "chevronDown" : "chevronRight"} />
+            </button>
+
+            {mobileCatOpen && (
+              <div className="mobile-menu__cats-list">
+                {catLoading ? (
+                  <div className="cat-item cat-item--status">Loading categories…</div>
+                ) : catError ? (
+                  <div className="cat-item cat-item--status">Couldn't load categories</div>
+                ) : categories.length === 0 ? (
+                  <div className="cat-item cat-item--status">No categories found</div>
+                ) : (
+                  categories.map((c) => (
+                    <div
+                      key={c.name}
+                      className="cat-item"
+                      onClick={() => goToCategory(c.name)}
+                    >
+                      <span>{c.name}</span>
+                      <Icon name="chevronRight" />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="mobile-menu__info">
+            <div className="info-item">
+              <Icon name="truck" />
+              <span>Fast Delivery<small>Across India</small></span>
+            </div>
+            <div className="info-item">
+              <Icon name="phone" />
+              <span>Support<small>+91 98765 43210</small></span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Logout toast ─────────────────────────────────── */}
       {logoutToast && (
