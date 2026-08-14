@@ -45,13 +45,17 @@ export default function Home() {
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands]         = useState([]);
+  // NEW: Product Type filter — driven by the raw product_type value the
+  // backend exposes on each product, same as AllProducts.jsx. Populated
+  // client-side from whatever's currently loaded in `products` below.
+  const [selectedProductTypes, setSelectedProductTypes] = useState([]);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort]         = useState("featured");
   const [page, setPage]         = useState(1);
   const [heroIdx, setHeroIdx]   = useState(0);
   const [viewMode, setViewMode] = useState("grid");
-  const [openSections, setOpenSections] = useState({ category: true, price: true, brand: true });
+  const [openSections, setOpenSections] = useState({ category: true, price: true, brand: true, productType: true });
 
   // Whether the navbar's "Shop by Categories" dropdown is currently open.
   const [catPanelOpen, setCatPanelOpen] = useState(false);
@@ -59,6 +63,11 @@ export default function Home() {
   // Login-required popup (shown instead of redirecting when guest tries to
   // add to cart or toggle wishlist).
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+
+  // True once every product page has been fetched. While this is false,
+  // `filtered` below skips re-sorting on every background page arrival —
+  // see the note there for why.
+  const [productsFullyLoaded, setProductsFullyLoaded] = useState(false);
 
   const navigate = useNavigate();
 
@@ -117,12 +126,55 @@ export default function Home() {
       writeCache("home_products", firstResults);
       setProductsLoading(false);
 
-      if (totalPages <= 1) return;
+      if (totalPages <= 1) {
+        setProductsFullyLoaded(true);
+        return;
+      }
 
       // Remaining pages load quietly in the background, a few at a time.
+      //
+      // Two changes vs. before, both aimed at the repeated "jumping /
+      // blinking" that happened with no clicks involved:
+      //
+      // 1. PAGE-ORDER ASSEMBLY — results are kept in a page->chunk map
+      //    and reassembled in page order every flush, instead of being
+      //    appended in *arrival* order. With 5 concurrent workers, page
+      //    7 can finish before page 3; appending by arrival meant a
+      //    bestseller from a later page could suddenly appear ahead of
+      //    items already on screen (because sort is "bestsellers
+      //    first"), visibly reshuffling the grid mid-load.
+      //
+      // 2. BATCHED FLUSH — setProducts() no longer fires once per page.
+      //    With ~5 pages finishing in quick succession, that was up to
+      //    5+ full grid re-renders/reflows firing back-to-back. Now
+      //    completions are batched and flushed to state at most every
+      //    300ms, so the grid updates in a few calm steps instead of a
+      //    rapid-fire burst.
       const concurrency = 5;
       let nextPage = 2;
-      let all = firstResults;
+      const pageResults = new Map();
+      pageResults.set(1, firstResults);
+
+      let flushPending = false;
+      let flushTimer = null;
+
+      const flush = () => {
+        const all = [];
+        for (let pNum = 1; pNum <= totalPages; pNum++) {
+          const chunk = pageResults.get(pNum);
+          if (chunk) all.push(...chunk);
+        }
+        setProducts(all);
+        writeCache("home_products", all);
+        flushPending = false;
+      };
+
+      const scheduleFlush = () => {
+        if (flushPending) return;
+        flushPending = true;
+        clearTimeout(flushTimer);
+        flushTimer = setTimeout(flush, 300);
+      };
 
       async function worker() {
         while (!ctrl.signal.aborted) {
@@ -133,9 +185,8 @@ export default function Home() {
             const res = await productsAPI.getAll({ page: myPage }, { signal: ctrl.signal });
             const results = res.data?.results || [];
             if (ctrl.signal.aborted) return;
-            all = [...all, ...results];
-            setProducts(all);
-            writeCache("home_products", all);
+            pageResults.set(myPage, results);
+            scheduleFlush();
           } catch {
             // skip a failed page rather than stalling the rest
           }
@@ -143,6 +194,9 @@ export default function Home() {
       }
 
       await Promise.all(Array.from({ length: concurrency }, worker));
+      clearTimeout(flushTimer);
+      flush();
+      setProductsFullyLoaded(true);
     }
 
     loadProducts();
@@ -248,18 +302,27 @@ export default function Home() {
     return [...s].sort();
   }, [products]);
 
+  // NEW: distinct list of `product_type` values seen across the currently
+  // loaded products, used to populate the Product Type checkbox list —
+  // same approach AllProducts.jsx uses for its Product Type filter.
+  const productTypes = useMemo(() => {
+    const s = new Set(products.map((p) => p.product_type).filter(Boolean));
+    return [...s].sort();
+  }, [products]);
+
   const priceMax = useMemo(() => {
     const max = Math.max(0, ...products.map((p) => p.price || 0));
     return Math.ceil(max / 1000) * 1000 || 100000;
   }, [products]);
 
   // Defer the filter inputs so typing/sliding never blocks the main thread.
-  const dProducts   = useDeferredValue(products);
-  const dCategories = useDeferredValue(selectedCategories);
-  const dBrands     = useDeferredValue(selectedBrands);
-  const dMin        = useDeferredValue(minPrice);
-  const dMax        = useDeferredValue(maxPrice);
-  const dSort       = useDeferredValue(sort);
+  const dProducts       = useDeferredValue(products);
+  const dCategories     = useDeferredValue(selectedCategories);
+  const dBrands         = useDeferredValue(selectedBrands);
+  const dProductTypes   = useDeferredValue(selectedProductTypes);
+  const dMin            = useDeferredValue(minPrice);
+  const dMax            = useDeferredValue(maxPrice);
+  const dSort           = useDeferredValue(sort);
 
   const filtered = useMemo(() => {
     let list = dProducts;
@@ -273,9 +336,26 @@ export default function Home() {
     if (dBrands.length > 0) {
       list = list.filter((p) => dBrands.includes((p.brand || "").toLowerCase()));
     }
+    // NEW: Product Type filter
+    if (dProductTypes.length > 0) {
+      list = list.filter((p) => dProductTypes.includes((p.product_type || "").toLowerCase()));
+    }
     const min = parseFloat(dMin) || 0;
     const max = parseFloat(dMax) || Infinity;
     list = list.filter((p) => p.price >= min && p.price <= max);
+
+    if (!productsFullyLoaded) {
+      // Background pages are still streaming in. Re-sorting the whole
+      // (growing) list on every arrival was repositioning cards that
+      // were already on screen — including whichever button still had
+      // focus — and the browser kept re-scrolling that button back
+      // into view each time it moved. That's what showed up as
+      // automatic, repeated jumping with no click involved. Keeping
+      // the list in stable fetch/page order until loading finishes
+      // means already-rendered cards never move mid-load; new items
+      // only ever get appended after what's currently visible.
+      return list;
+    }
 
     const sorted = [...list];
     if (dSort === "price-low")       sorted.sort((a, b) => a.price - b.price);
@@ -284,7 +364,7 @@ export default function Home() {
     // "featured": keep bestsellers first, preserve original order otherwise
     else sorted.sort((a, b) => (b.is_bestseller ? 1 : 0) - (a.is_bestseller ? 1 : 0));
     return sorted;
-  }, [dProducts, dCategories, dBrands, dMin, dMax, dSort]);
+  }, [dProducts, dCategories, dBrands, dProductTypes, dMin, dMax, dSort, productsFullyLoaded]);
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const pageItems  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -292,10 +372,11 @@ export default function Home() {
   const activeFilterCount =
     selectedCategories.length +
     selectedBrands.length +
+    selectedProductTypes.length +
     (minPrice ? 1 : 0) +
     (maxPrice ? 1 : 0);
 
-  useEffect(() => setPage(1), [selectedCategories, selectedBrands, minPrice, maxPrice, sort]);
+  useEffect(() => setPage(1), [selectedCategories, selectedBrands, selectedProductTypes, minPrice, maxPrice, sort]);
 
   const toggleCategory = (name) => {
     const v = name.toLowerCase();
@@ -311,12 +392,21 @@ export default function Home() {
     );
   };
 
+  // NEW: Product Type checkbox toggle — mirrors toggleCategory/toggleBrand.
+  const toggleProductType = (name) => {
+    const v = name.toLowerCase();
+    setSelectedProductTypes((prev) =>
+      prev.includes(v) ? prev.filter((t) => t !== v) : [...prev, v]
+    );
+  };
+
   const toggleSection = (key) =>
     setOpenSections((s) => ({ ...s, [key]: !s[key] }));
 
   const clearAll = () => {
     setSelectedCategories([]);
     setSelectedBrands([]);
+    setSelectedProductTypes([]);
     setMinPrice("");
     setMaxPrice("");
     setSort("featured");
@@ -538,7 +628,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button className="dotd-viewall-btn" onClick={() => navigate("/deals")}>
+                <button
+                  className="dotd-viewall-btn"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => navigate("/deals")}
+                >
                   View All Deals <i className="fas fa-arrow-right" />
                 </button>
               </div>
@@ -582,6 +676,7 @@ export default function Home() {
                       </div>
                       <button
                         className="dotd-card-cta"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={(e) => { e.stopPropagation(); goProduct(p); }}
                       >
                         <i className="fas fa-eye" /> View Deal
@@ -606,6 +701,7 @@ export default function Home() {
             <div className="bs-carousel">
               <button
                 className="bs-arrow bs-arrow-left"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => bsScrollRef.current?.scrollBy({ left: -280, behavior: "smooth" })}
                 aria-label="Scroll left"
               >
@@ -639,6 +735,7 @@ export default function Home() {
 
               <button
                 className="bs-arrow bs-arrow-right"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => bsScrollRef.current?.scrollBy({ left: 280, behavior: "smooth" })}
                 aria-label="Scroll right"
               >
@@ -737,6 +834,36 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+              {/* NEW: Product Type filter section — same pattern as
+                  Categories/Brand above, listing whatever product_type
+                  values are present in the currently loaded products. */}
+              <div className="filter-section">
+                <button className="filter-title" onClick={() => toggleSection("productType")}>
+                  Product Type
+                  <i className={"fas fa-chevron-up filter-chevron" + (openSections.productType ? "" : " closed")} />
+                </button>
+                {openSections.productType && (
+                  <div className="filter-options">
+                    <label className="filter-option">
+                      <input type="checkbox" checked={selectedProductTypes.length === 0} onChange={() => setSelectedProductTypes([])} />
+                      <span className="filter-check"><i className="fas fa-check" /></span>
+                      <span className="filter-label">All Types</span>
+                    </label>
+                    {productTypes.length === 0 ? (
+                      <p className="filter-empty">No product types available</p>
+                    ) : (
+                      productTypes.map((pt) => (
+                        <label className="filter-option" key={pt}>
+                          <input type="checkbox" checked={selectedProductTypes.includes(pt.toLowerCase())} onChange={() => toggleProductType(pt)} />
+                          <span className="filter-check"><i className="fas fa-check" /></span>
+                          <span className="filter-label">{pt}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="filters-footer">
@@ -814,6 +941,7 @@ export default function Home() {
                           <button
                             className={"wishlist-heart" + (wished ? " active" : "")}
                             disabled={wBusy}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={(e) => { e.stopPropagation(); toggleWishlist(p); }}
                             aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
                           >
@@ -844,6 +972,7 @@ export default function Home() {
                           </div>
                           <button
                             className="add-to-cart-btn"
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={(e) => { e.stopPropagation(); goProduct(p); }}
                           >
                             <i className="fas fa-eye" /> View Product

@@ -52,7 +52,7 @@ export default function Cart() {
     });
     msg += `💵 Grand Total: ₹${data.grand_total}`;
     window.open(
-      `https://wa.me/918129139506?text=${encodeURIComponent(msg)}`,
+      `https://wa.me/917591907004?text=${encodeURIComponent(msg)}`,
       "_blank"
     );
   };

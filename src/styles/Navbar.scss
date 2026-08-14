@@ -13,20 +13,25 @@ $white: #ffffff;
   z-index: 1000;
   width: 100%;
   font-family: inherit;
+  overflow-x: clip; // guards against any child briefly overflowing the viewport on small screens
 }
 
 // ── Top bar ─────────────────────────────────────────────
 .topbar {
   background: $white;
   border-bottom: 1px solid $border;
+  position: relative;   // keeps this bar's own stacking context above page content
+  z-index: 1;
 
   .topbar-content {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 14px 16px 14px 24px;
+    height: 83px;              // locked height so the logo can't grow the navbar (desktop only — switched to a grid below 900px, see media query)
+    padding: 0 16px 0 24px;
     display: flex;
     align-items: center;
     gap: 28px;
+    overflow: visible;         // let the bigger logo visually overflow the row
   }
 }
 
@@ -44,6 +49,7 @@ $white: #ffffff;
   cursor: pointer;
   border-radius: 8px;
   transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover { background: rgba(0,0,0,0.05); }
   svg { width: 22px; height: 22px; }
@@ -54,12 +60,18 @@ $white: #ffffff;
   display: flex;
   align-items: center;
   text-decoration: none;
+  overflow: visible;
 
-  .logo-img { height: 55px; width: auto; object-fit: contain; }
+  .logo-img {
+    height: 90px;              // bigger logo — tweak this value to taste
+    width: auto;
+    object-fit: contain;
+    margin: -18px 0;           // pulls the extra height back in so topbar height is unaffected
+  }
 }
 
 // ── Search ──────────────────────────────────────────────
-.search-container { flex: 1; max-width: 640px; margin: 0 auto; }
+.search-container { flex: 1; max-width: 640px; margin: 0 auto; min-width: 0; } // min-width:0 lets it shrink inside the mobile grid row instead of forcing overflow
 
 .search-wrapper { position: relative; display: flex; align-items: center; }
 
@@ -75,6 +87,7 @@ $white: #ffffff;
   background: $white;
   color: $text;
   transition: border-color 0.2s ease;
+  min-width: 0;
 
   &:focus { border-color: $navy; }
   &::placeholder { color: $muted; }
@@ -91,6 +104,7 @@ $white: #ffffff;
   color: $white;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s ease;
+  flex-shrink: 0;
   &:hover { background: $navy-light; }
 }
 
@@ -115,9 +129,9 @@ $white: #ffffff;
   transition: background 0.15s ease;
   &:last-child { border-bottom: none; }
   &:hover { background: rgba(0,0,0,0.04); }
-  img { width: 36px; height: 36px; object-fit: contain; margin-right: 10px; border-radius: 6px; background: rgba(0,0,0,0.05); }
+  img { width: 36px; height: 36px; object-fit: contain; margin-right: 10px; border-radius: 6px; background: rgba(0,0,0,0.05); flex-shrink: 0; }
   .name { font-weight: 600; color: $text; font-size: 13px; }
-  .details { font-size: 11px; color: $muted; display: flex; gap: 8px; margin-top: 2px; }
+  .details { font-size: 11px; color: $muted; display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap; }
 }
 
 .no-results { padding: 14px; color: $muted; font-style: italic; text-align: center; font-size: 13px; }
@@ -145,6 +159,7 @@ $white: #ffffff;
   border: none;
   cursor: pointer;
   color: $text;
+  -webkit-tap-highlight-color: transparent;
 
   .account-text {
     display: flex;
@@ -155,7 +170,7 @@ $white: #ffffff;
     strong { font-size: 13.5px; font-weight: 700; }
   }
 
-  svg:last-child { width: 14px; height: 14px; color: $muted; }
+  svg:last-child { width: 14px; height: 14px; color: $muted; flex-shrink: 0; }
 }
 
 .profile-dropdown {
@@ -163,6 +178,7 @@ $white: #ffffff;
   top: calc(100% + 16px); right: 0;
   background: $white;
   min-width: 230px;
+  max-width: calc(100vw - 24px);   // never overflow the viewport on narrow phones
   border-radius: 12px;
   box-shadow: 0 16px 40px rgba(0,0,0,0.16);
   border: 1px solid $border;
@@ -191,7 +207,7 @@ $white: #ffffff;
   }
 
   .profile-name { font-weight: 600; font-size: 13px; color: $text; }
-  .profile-email { font-size: 11px; color: $muted; margin-top: 2px; }
+  .profile-email { font-size: 11px; color: $muted; margin-top: 2px; word-break: break-all; }
 
   .dropdown-menu { padding: 6px 0; }
 
@@ -210,7 +226,7 @@ $white: #ffffff;
     text-align: left;
     cursor: pointer;
 
-    svg { width: 16px; height: 16px; }
+    svg { width: 16px; height: 16px; flex-shrink: 0; }
     &:hover { background: rgba(0,0,0,0.04); color: $text; }
   }
 
@@ -249,6 +265,8 @@ $white: #ffffff;
   text-decoration: none;
   color: $text;
   transition: background 0.15s ease;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover { background: rgba(0,0,0,0.05); }
 
@@ -328,11 +346,12 @@ $white: #ffffff;
   &:hover { background: darken($orange, 6%); }
 }
 
-// ── Category flyout — now capped in height with a slim scrollbar ────────
+// ── Category flyout — capped in height with a slim scrollbar ────────
 .cat-flyout {
   position: absolute;
   top: 100%; left: 0;
   width: 260px;
+  max-width: calc(100vw - 24px);
   max-height: 360px;
   background: $white;
   border-radius: 0 0 10px 10px;
@@ -363,7 +382,7 @@ $white: #ffffff;
   border-bottom: 1px solid $border;
   transition: background 0.15s ease;
 
-  svg { width: 14px; height: 14px; color: $muted; }
+  svg { width: 14px; height: 14px; color: $muted; flex-shrink: 0; }
   &:last-child { border-bottom: none; }
   &:hover { background: rgba(0,0,0,0.04); color: $orange; }
 }
@@ -427,10 +446,15 @@ $white: #ffffff;
 // ── Mobile slide-down menu ───────────────────────────────
 .mobile-menu {
   display: none; // shown only under the mobile breakpoint below
+  width: 100%;
+  box-sizing: border-box;
   background: $navy;
   border-top: 1px solid rgba(255,255,255,0.08);
   max-height: calc(100vh - 64px);
   overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1;
   animation: mobileMenuIn 0.18s ease;
 
   &__links {
@@ -468,8 +492,9 @@ $white: #ffffff;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 
-    svg { width: 14px; height: 14px; color: rgba(255,255,255,0.6); }
+    svg { width: 14px; height: 14px; color: rgba(255,255,255,0.6); flex-shrink: 0; }
   }
 
   &__cats-list {
@@ -521,9 +546,45 @@ $white: #ffffff;
 }
 
 @media (max-width: 900px) {
-  .topbar-content { flex-wrap: wrap; gap: 12px; }
-  .search-container { order: 3; flex-basis: 100%; max-width: none; }
+  // FIX: the old approach used flex-wrap to drop the search bar onto its
+  // own line, but relied on the browser to auto-grow the topbar's height
+  // to fit the wrapped row. In practice that produced an unreliable box
+  // height, so the white topbar background stopped short and the search
+  // row rendered on top of whatever page content (e.g. a hero banner)
+  // came right after the navbar in the page.
+  //
+  // Switching to CSS Grid with explicit rows removes that ambiguity
+  // entirely: row 1 is [toggle | logo | (spacer) | actions], row 2 is the
+  // search bar spanning full width. The grid's height is always exactly
+  // the sum of its two rows, so the white background can never fall short.
+  .topbar-content {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "toggle logo spacer actions"
+      "search search search search";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 10px;
+    height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .mobile-toggle-btn { grid-area: toggle; }
+  .logo-section { grid-area: logo; }
+  .topbar-actions { grid-area: actions; margin-left: 0; }
+  .search-container {
+    grid-area: search;
+    max-width: none;
+    margin: 0;
+  }
+
   .subbar-nav { display: none; }
+
+  // Prevent 16px min font-size input from being the only mobile-safe spot —
+  // apply it as soon as the search bar drops to its own full-width row.
+  .search-input { font-size: 16px; } // stops iOS Safari from auto-zooming the page on focus
 }
 
 @media (max-width: 768px) {
@@ -535,22 +596,53 @@ $white: #ffffff;
   .cat-wrap { display: none; }
   .subbar-info { display: none; }
 
-  .subbar {
-    .subbar-content {
-      justify-content: flex-end;
-      height: auto;
-      padding: 8px 16px;
-    }
-  }
+  // NOTE: .subbar itself stays visible and empty (46px navy strip) here on
+  // purpose. Earlier this was hidden outright, but the page content that
+  // follows the navbar (e.g. the hero banner) uses a negative top-margin
+  // that assumes this 46px is still reserved as spacing — hiding it caused
+  // the hero heading to overlap the search bar instead. The bar itself
+  // renders empty (its nav links/categories/info all live in .mobile-menu
+  // now), which is a minor cosmetic strip, not a functional bug.
 }
 
 @media (max-width: 560px) {
   .account-text { display: none; }
   .topbar-actions { gap: 10px; }
-  .cat-toggle span { display: none; }
 
-  .topbar-content { padding: 12px 12px 12px 12px; gap: 10px; }
-  .logo-img { height: 42px; }
+  .topbar-content { padding-left: 12px; padding-right: 12px; column-gap: 10px; }
+
+  .logo-img {
+    height: 60px;             // scaled-down big logo for small screens
+    margin: -9px 0;
+  }
+}
+
+// Smallest phones (iPhone SE, small Android) — tighten everything further
+// so the toggle + logo + account + wishlist + cart never crowd or clip.
+@media (max-width: 400px) {
+  .topbar-content { column-gap: 8px; row-gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+
+  .mobile-toggle-btn { width: 34px; height: 34px; svg { width: 20px; height: 20px; } }
+
+  .logo-img { height: 50px; margin: -7px 0; }
+
+  .topbar-actions { gap: 6px; }
+
+  .account-wrap { padding-right: 8px; }
+
+  .wishlist-btn, .cart-btn { width: 36px; height: 36px; svg { width: 19px; height: 19px; } }
+
+  .wishlist-badge, .cart-badge {
+    min-width: 15px; height: 15px; font-size: 9px; top: -4px; right: -6px;
+  }
+
+  .search-input { padding: 0 44px 0 12px; font-size: 16px; }
+  .search-btn { width: 40px; }
+
+  .mobile-menu__link { padding: 12px 16px; font-size: 13.5px; }
+  .mobile-menu__cats-toggle { padding: 12px 16px; font-size: 13.5px; }
+  .mobile-menu__cats-list .cat-item { padding: 10px 16px; font-size: 13px; }
+  .mobile-menu__info { padding: 14px 16px; }
 }
 
 // ── Guest "New customer?" popup ──────────────────────────
@@ -561,6 +653,7 @@ $white: #ffffff;
     justify-content: space-between;
     padding: 16px;
     border-bottom: 1px solid #e5e7eb;
+    gap: 10px;
 
     &__label {
       font-size: 13.5px;
@@ -579,6 +672,7 @@ $white: #ffffff;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s ease;
+    flex-shrink: 0;
 
     &:hover {
       background: #c14e00;
@@ -601,11 +695,13 @@ $white: #ffffff;
   top: calc(100% + 16px); right: 0;
   background: $white;
   min-width: 250px;
+  max-width: calc(100vw - 24px);   // never overflow the viewport on narrow phones
   border-radius: 12px;
   box-shadow: 0 16px 40px rgba(0,0,0,0.16);
   border: 1px solid $border;
   z-index: 5000;
   padding: 16px;
+  box-sizing: border-box;
 
   &__header {
     display: flex;
@@ -682,6 +778,8 @@ $white: #ffffff;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
   z-index: 9000;
   animation: logoutToastIn 0.2s ease;
+  max-width: calc(100vw - 32px);
+  text-align: center;
 }
 
 @keyframes logoutToastIn {
@@ -704,4 +802,6 @@ $white: #ffffff;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
   z-index: 9000;
   animation: logoutToastIn 0.2s ease;
+  max-width: calc(100vw - 32px);
+  text-align: center;
 }

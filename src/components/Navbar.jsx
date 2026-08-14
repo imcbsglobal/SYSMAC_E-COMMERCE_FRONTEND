@@ -360,15 +360,20 @@ export default function Navbar() {
     }, 1200);
   };
 
-  // Navigating with the raw category name (not a slug) because the backend
-  // `products` view filters with p['category'].lower() == category.lower(),
-  // and 'category' there is the Sysmac "product" field name (e.g. "BISCUIT"),
-  // not a slug.
+  // FIXED: previously navigated to `/products?category=${name}` (a query
+  // string) but AllProducts.jsx only ever reads the *route* param
+  // (`useParams().category`) to drive its category filter — it never
+  // checks `?category=` in the URL. That mismatch meant selectedCategory
+  // stayed empty and the page silently fell back to showing everything.
+  // Routing through `/products/:category` instead (the same pattern
+  // AllProducts' own sidebar `selectCategory` already uses successfully)
+  // makes this actually filter. Still uses the raw category name — not a
+  // slug — since that's what the backend/category matching expects.
   const goToCategory = (name) => {
     setCatOpen(false);
     setMobileMenuOpen(false);
     setMobileCatOpen(false);
-    navigate(`/products?category=${encodeURIComponent(name)}`);
+    navigate(`/products/${encodeURIComponent(name)}`);
   };
 
   const isActive = (to) => (to === "/" ? location.pathname === "/" : location.pathname.startsWith(to));

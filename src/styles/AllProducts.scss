@@ -5,6 +5,12 @@
 // no background box, subtle white chip). Badges moved to
 // top-right so they don't collide with the wishlist icon.
 // Cart button is icon+full-width in its own row below.
+//
+// UPDATED: filter panels (Categories / Brand / Product Type)
+// made compact and tightly aligned so they stay usable once
+// those lists grow long — smaller type, tighter row height,
+// fixed scroll caps per block instead of the whole sidebar
+// growing unbounded.
 // ============================================================
 
 $orange: #f98f15;
@@ -26,7 +32,7 @@ $font: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 $sticky-top: 16px;
 
 @mixin eyebrow {
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -34,7 +40,7 @@ $sticky-top: 16px;
 }
 
 @mixin thin-scrollbar {
-  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb { background: $border-strong; border-radius: 3px; }
   &::-webkit-scrollbar-thumb:hover { background: $orange; }
@@ -76,7 +82,7 @@ $sticky-top: 16px;
 .ap-layout {
   display: flex;
   align-items: flex-start;
-  gap: 32px; // widened from 20px so the sidebar doesn't crowd the grid
+  gap: 32px;
 
   @media (max-width: 900px) {
     flex-direction: column;
@@ -84,11 +90,13 @@ $sticky-top: 16px;
   }
 }
 
+// Sidebar is narrower now — the point of a compact filter panel is
+// that it doesn't need 260px to stay readable.
 .ap-sidebar {
-  flex: 0 0 260px;
+  flex: 0 0 236px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 
   position: sticky;
   top: $sticky-top;
@@ -112,7 +120,7 @@ $sticky-top: 16px;
   background: $bg-panel;
   border: 1px solid $border;
   border-radius: $radius-lg;
-  padding: 16px 16px 18px;
+  padding: 13px 13px 14px;
   flex-shrink: 0;
 }
 
@@ -120,7 +128,7 @@ $sticky-top: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 9px;
 
   h3 {
     @include eyebrow;
@@ -129,22 +137,25 @@ $sticky-top: 16px;
 }
 
 .ap-clear-link {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: $orange;
   cursor: pointer;
   font-weight: 600;
+  flex-shrink: 0;
 
   &:hover { text-decoration: underline; }
 }
 
+// Categories: fixed compact row height + its own capped, scrollable
+// list — so 5 categories or 50 categories take up the same footprint.
 .ap-category-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  max-height: 260px;
+  gap: 1px;
+  max-height: 190px;
   overflow-y: auto;
   @include thin-scrollbar;
 
@@ -153,9 +164,10 @@ $sticky-top: 16px;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 9px 12px;
-    border-radius: $radius-md;
-    font-size: 0.88rem;
+    padding: 6px 8px;
+    border-radius: $radius-sm;
+    font-size: 0.8rem;
+    line-height: 1.2;
     font-weight: 600;
     color: $navy;
     cursor: pointer;
@@ -176,18 +188,21 @@ $sticky-top: 16px;
   justify-content: center;
   color: $orange;
   flex-shrink: 0;
+
+  svg { width: 12px; height: 12px; }
 }
 
 .ap-count {
   color: $text-muted;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 500;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .ap-filter-block {
-  margin-bottom: 20px;
-  padding-top: 16px;
+  margin-bottom: 15px;
+  padding-top: 13px;
   border-top: 1px solid $border;
 
   &:first-of-type { padding-top: 0; border-top: none; }
@@ -197,51 +212,57 @@ $sticky-top: 16px;
 .ap-filter-label {
   display: block;
   @include eyebrow;
-  margin-bottom: 12px;
+  margin-bottom: 9px;
+}
+
+.ap-filter-empty {
+  font-size: 0.76rem;
+  color: $text-muted;
+  margin: 0;
 }
 
 .ap-price-slider {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 6px;
+  height: 5px;
   border-radius: 4px;
   cursor: pointer;
   outline: none;
 
   &::-webkit-slider-runnable-track {
-    height: 6px;
+    height: 5px;
     border-radius: 4px;
   }
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #fff;
     border: 3px solid $orange;
-    margin-top: -5px;
+    margin-top: -4.5px;
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 
   &::-moz-range-track {
-    height: 6px;
+    height: 5px;
     border-radius: 4px;
     background: $border;
   }
 
   &::-moz-range-progress {
-    height: 6px;
+    height: 5px;
     border-radius: 4px;
     background: $orange;
   }
 
   &::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #fff;
     border: 3px solid $orange;
@@ -253,39 +274,56 @@ $sticky-top: 16px;
 .ap-price-values {
   display: flex;
   justify-content: space-between;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: $navy;
-  margin-top: 8px;
+  margin-top: 7px;
 
   span:first-child { color: $text-muted; font-weight: 500; }
 }
 
+// Brand / Product Type checkbox lists: same compact-row treatment as
+// categories — capped height, tight consistent row spacing so a long
+// alphabetical brand list scrolls inside its own block instead of
+// pushing the whole sidebar (and the page) taller.
 .ap-checkbox-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 260px;
+  gap: 1px;
+  max-height: 190px;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 4px;
   @include thin-scrollbar;
 }
 
 .ap-checkbox-row {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 0.87rem;
+  gap: 8px;
+  padding: 5px 4px;
+  border-radius: $radius-sm;
+  font-size: 0.8rem;
+  line-height: 1.2;
   font-weight: 600;
   color: $navy;
   cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover { background: $bg-page; }
 
   input {
     accent-color: $orange;
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
     cursor: pointer;
     border-radius: 3px;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -458,7 +496,6 @@ $sticky-top: 16px;
   }
 }
 
-// Discount/New badges — top-right, stacked if both are present
 .ap-badge {
   position: absolute;
   top: 10px;
@@ -476,7 +513,7 @@ $sticky-top: 16px;
 
 .ap-badge-new {
   background: $green;
-  top: 40px; // stacks below the discount badge when both show
+  top: 40px;
 }
 
 .ap-card-image {
@@ -563,7 +600,6 @@ $sticky-top: 16px;
   text-decoration: line-through;
 }
 
-// Cart button now sits alone in its row (wishlist moved onto the image)
 .ap-card-actions {
   display: flex;
   align-items: center;
@@ -581,7 +617,6 @@ $sticky-top: 16px;
   justify-content: center;
 }
 
-// Cart button — outline by default, fills orange on hover, spans the row
 .ap-card-btn-cart {
   width: 100%;
   height: 40px;
@@ -598,7 +633,6 @@ $sticky-top: 16px;
   }
 }
 
-// Plain iOS-style icon toggle — no fill, no border, no box
 .ap-icon-btn {
   flex: 0 0 auto;
   width: 40px;
@@ -623,8 +657,6 @@ $sticky-top: 16px;
   }
 }
 
-// Wishlist — pinned to the top-left corner of the product image,
-// floating on a soft white chip so it stays readable over any photo
 .ap-icon-btn-wish {
   position: absolute;
   top: 10px;
@@ -706,7 +738,7 @@ $sticky-top: 16px;
 }
 
 // ============================================================
-// NEW: Login-required alert modal
+// Login-required alert modal
 // ============================================================
 .ap-login-modal-overlay {
   position: fixed;

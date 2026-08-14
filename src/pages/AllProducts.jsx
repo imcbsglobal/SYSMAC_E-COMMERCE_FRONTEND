@@ -18,6 +18,10 @@ export default function AllProducts() {
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "");
   const [selectedBrands, setSelectedBrands] = useState(brandParam ? [brandParam] : []);
+  // NEW: Product Type filter — driven by the raw acc_product.product value
+  // (exposed by the backend as `product_type`), separate from `category`
+  // which is resolved against the Category admin table.
+  const [selectedProductTypes, setSelectedProductTypes] = useState([]);
   const [priceRange, setPriceRange] = useState(20000);
   const [sortBy, setSortBy] = useState("featured");
   // Seeded from ?search= in the URL (Navbar's search button/Enter lands
@@ -209,6 +213,16 @@ export default function AllProducts() {
     setPage(1);
   };
 
+  // NEW: Product Type checkbox toggle — purely client-side, filtered
+  // against whatever `product_type` values are already present in the
+  // currently loaded `products` list (see productTypes below).
+  const toggleProductType = (pt) => {
+    setSelectedProductTypes((prev) =>
+      prev.includes(pt) ? prev.filter((x) => x !== pt) : [...prev, pt]
+    );
+    setPage(1);
+  };
+
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchQuery(val);
@@ -234,6 +248,16 @@ export default function AllProducts() {
     });
   };
 
+  // NEW: distinct list of `product_type` values seen across the currently
+  // loaded products, used to populate the Product Type checkbox list.
+  const productTypes = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => {
+      if (p.product_type) set.add(p.product_type);
+    });
+    return Array.from(set).sort();
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
@@ -257,6 +281,11 @@ export default function AllProducts() {
       const wanted = selectedBrands.map((b) => b.toLowerCase());
       list = list.filter((p) => wanted.includes((p.brand || "").toLowerCase()));
     }
+    // NEW: Product Type filter
+    if (selectedProductTypes.length) {
+      const wantedTypes = selectedProductTypes.map((t) => t.toLowerCase());
+      list = list.filter((p) => wantedTypes.includes((p.product_type || "").toLowerCase()));
+    }
     list = list.filter((p) => Number(p.price) <= Number(priceRange));
 
     switch (sortBy) {
@@ -276,7 +305,7 @@ export default function AllProducts() {
         break;
     }
     return list;
-  }, [products, selectedCategory, selectedBrands, priceRange, sortBy, searchQuery]);
+  }, [products, selectedCategory, selectedBrands, selectedProductTypes, priceRange, sortBy, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
   const paginated = filteredProducts.slice((page - 1) * perPage, page * perPage);
@@ -284,6 +313,7 @@ export default function AllProducts() {
   const clearFilters = () => {
     setSelectedCategory("");
     setSelectedBrands([]);
+    setSelectedProductTypes([]);
     setPriceRange(20000);
     setSearchQuery("");
     setPage(1);
@@ -401,6 +431,40 @@ export default function AllProducts() {
                     <span>{b}</span>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            {/* NEW: Product Type filter block */}
+            <div className="ap-filter-block">
+              <div className="ap-sidebar-header">
+                <label className="ap-filter-label">Product Type</label>
+                {selectedProductTypes.length > 0 && (
+                  <span
+                    className="ap-clear-link"
+                    onClick={() => {
+                      setSelectedProductTypes([]);
+                      setPage(1);
+                    }}
+                  >
+                    ✕
+                  </span>
+                )}
+              </div>
+              <div className="ap-checkbox-list">
+                {productTypes.length === 0 ? (
+                  <p className="ap-filter-empty">No product types available</p>
+                ) : (
+                  productTypes.map((pt) => (
+                    <label key={pt} className="ap-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={selectedProductTypes.includes(pt)}
+                        onChange={() => toggleProductType(pt)}
+                      />
+                      <span>{pt}</span>
+                    </label>
+                  ))
+                )}
               </div>
             </div>
           </div>

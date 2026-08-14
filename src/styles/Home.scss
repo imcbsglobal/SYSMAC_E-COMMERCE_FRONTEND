@@ -67,9 +67,18 @@ $navbar-h: 76px;
 .home-loading { text-align: center; padding: 5rem; color: $ink-muted; font-family: 'Inter', sans-serif; }
 
 html {
-  scroll-behavior: smooth;
+  // Changed from "smooth" to "auto": with smooth scrolling on, any
+  // scroll adjustment the browser makes on its own (e.g. bringing a
+  // just-focused element fully into view) is animated and visibly
+  // reads as a "jump". Switching to auto makes any such correction
+  // instant/invisible instead of an obvious slide.
+  scroll-behavior: auto;
   scroll-padding-top: $navbar-h;
-  scroll-snap-type: y proximity;
+  // scroll-snap-type removed: with it active, focusing a partially
+  // visible interactive element (e.g. clicking "View Product" near
+  // the bottom edge of the viewport) made the browser snap the
+  // whole nearest section into place instead of a small scroll
+  // nudge — that snap was the visible jump.
 }
 
 .home {
@@ -80,7 +89,9 @@ html {
   background: $white;
 
   > section {
-    scroll-snap-align: start;
+    // scroll-snap-align removed — no longer using scroll snapping on
+    // this page, so this was dead weight that could still interact
+    // with the browser's "scroll focused element into view" behavior.
     min-height: calc(100vh - #{$navbar-h});
     scroll-margin-top: $navbar-h;
     display: flex;
@@ -96,24 +107,24 @@ html {
 
   > section.hero-banner-boxed {
     min-height: 0 !important;
-    scroll-snap-align: start;
+    // scroll-snap-align removed (see note on `.home > section` above).
     scroll-margin-top: $navbar-h;
   }
 
   /* ===== BOXED HERO ===== */
   .hero-banner-boxed {
     background: $white;
-    padding: 28px $pad-x 24px;
+    padding: 28px 20px 24px;
     display: flex; flex-direction: column; justify-content: center;
     gap: 18px;
     transition: padding-top .2s ease;
   }
   .hero-banner-boxed.panel-open {
     padding-top: 44px;
-    padding-left: 56px;
+    padding-left: 36px;
   }
   .hbx-row {
-    max-width: 1280px; width: 100%; margin: 0 auto;
+    max-width: 1440px; width: 100%; margin: 0 auto;
     display: grid;
     grid-template-columns: 250px 1fr;
     gap: 24px;
@@ -134,7 +145,17 @@ html {
     overflow: hidden;
     background: $navy;
     display: flex; align-items: center;
-    min-height: 320px;
+    // Fixed height (not min-height): .hbx-content — a normal-flow flex
+    // child sitting next to the absolutely-positioned image layer
+    // (.hbx-media) — could grow taller than 320px whenever a banner
+    // had a longer title/subtitle, which stretched the whole box (and
+    // therefore the image, since .hbx-media is inset:0) differently
+    // per banner. That resizing is what read as "the screen changing"
+    // on image upload. A hard height keeps every banner identical in
+    // size and position no matter what title/subtitle/image comes in;
+    // overflow: hidden above clips any content that would otherwise
+    // poke past it.
+    height: 320px;
   }
   .hbx-media { position: absolute; inset: 0; z-index: 0; }
   .hbx-media-skeleton {
@@ -182,7 +203,7 @@ html {
   }
 
   .hbx-features {
-    max-width: 1280px; width: 100%; margin: 0 auto;
+    max-width: 1440px; width: 100%; margin: 0 auto;
     display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
     padding-top: 16px; border-top: 1px solid $line;
   }
@@ -589,6 +610,14 @@ html {
     flex-direction: column;
     box-sizing: border-box;
     min-height: 0 !important;
+    // This section's height keeps changing after mount (product grid
+    // grows as background pages stream in), unlike the other sections
+    // above it. Scroll-snap re-evaluating against a moving target is
+    // what was causing this section specifically to jump while the
+    // rest of the page stayed put — so it opts out of snapping and
+    // scroll anchoring entirely.
+    scroll-snap-align: none !important;
+    overflow-anchor: none;
   }
 
   .catalog-crumb {
@@ -608,7 +637,7 @@ html {
 
   .catalog-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 236px 1fr;
     gap: 28px;
     width: 100%;
     padding: 0 $pad-x;
@@ -616,6 +645,10 @@ html {
     align-items: start;
   }
 
+  // ── FILTER SIDEBAR — compact, tightly aligned rows so a long
+  // category/brand list scrolls inside its own fixed-height block
+  // instead of growing the whole sidebar, matching the AllProducts
+  // filter panel treatment. ──
   .filters-sidebar {
     background: $white;
     border-radius: 14px; border: 1px solid $line;
@@ -624,14 +657,14 @@ html {
     display: flex; flex-direction: column;
   }
   .filters-heading {
-    display: flex; align-items: center; gap: 10px;
-    padding: 18px 20px; border-bottom: 1px solid $line;
-    font-size: 15px; font-weight: 800; color: $navy; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 9px;
+    padding: 14px 16px; border-bottom: 1px solid $line;
+    font-size: 14px; font-weight: 800; color: $navy; letter-spacing: -0.01em;
     flex-shrink: 0;
     .filters-heading-icon {
       display: inline-flex; align-items: center; justify-content: center;
-      width: 30px; height: 30px; border-radius: 9px;
-      background: $brand; color: $white; font-size: 13px;
+      width: 27px; height: 27px; border-radius: 8px;
+      background: $brand; color: $white; font-size: 12px;
     }
   }
   .filters-scroll {
@@ -644,42 +677,51 @@ html {
     &::-webkit-scrollbar-track { background: transparent; }
   }
   .filter-section {
-    margin: 0; padding: 16px 20px; border-bottom: 1px solid $line;
+    margin: 0; padding: 13px 16px; border-bottom: 1px solid $line;
     &:last-of-type { border-bottom: none; }
   }
   .filter-title {
     width: 100%; display: flex; align-items: center; justify-content: space-between;
     background: none; border: none; padding: 0 0 6px; cursor: pointer; font-family: inherit;
-    font-size: 11.5px; font-weight: 800; color: $ink-muted; margin-bottom: 10px;
-    text-transform: uppercase; letter-spacing: .08em;
+    font-size: 0.66rem; font-weight: 800; color: $ink-muted; margin-bottom: 9px;
+    text-transform: uppercase; letter-spacing: .06em;
     .filter-chevron { font-size: 10px; color: $ink-muted; transition: transform .25s ease;
       &.closed { transform: rotate(180deg); } }
     &:hover .filter-chevron { color: $brand; }
   }
   .filter-options {
     display: flex; flex-direction: column; gap: 1px;
-    max-height: 190px; overflow-y: auto; overflow-x: hidden; margin: 0 -6px; padding-right: 4px;
+    max-height: 190px; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding-right: 4px;
     scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.25) transparent;
     &::-webkit-scrollbar { width: 5px; }
     &::-webkit-scrollbar-thumb { background: rgba(0,0,0,.2); border-radius: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
   }
   .filter-option {
-    display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 7px 6px; border-radius: 8px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px 4px; border-radius: 6px;
     transition: background .15s ease;
     input { position: absolute; opacity: 0; width: 0; height: 0; }
     .filter-check {
-      flex-shrink: 0; width: 18px; height: 18px; border: 1.5px solid #c7c7cc; background: $white;
-      border-radius: 5px; display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; width: 15px; height: 15px; border: 1.5px solid #c7c7cc; background: $white;
+      border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
       transition: border-color .15s ease, background .15s ease;
-      i { font-size: 9px; color: $white; opacity: 0; transform: scale(.5); transition: opacity .15s ease, transform .15s ease; }
+      i { font-size: 8px; color: $white; opacity: 0; transform: scale(.5); transition: opacity .15s ease, transform .15s ease; }
     }
     input:checked + .filter-check { background: $brand; border-color: $brand; i { opacity: 1; transform: scale(1); } }
-    span.filter-label { font-size: 13.5px; color: $ink-soft; line-height: 1.3; }
+    span.filter-label {
+      font-size: 0.8rem; color: $ink-soft; line-height: 1.2;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
     &:hover { background: $brand-bg; }
   }
+  .filter-empty {
+    font-size: 0.76rem;
+    color: $ink-muted;
+    margin: 4px 0 0;
+    padding: 0 4px;
+  }
 
-  .price-slider { position: relative; height: 26px; margin: 4px 2px 14px; }
+  .price-slider { position: relative; height: 24px; margin: 3px 2px 12px; }
   .slider-rail {
     position: absolute; top: 50%; transform: translateY(-50%); left: 0; right: 0;
     height: 3px; background: $line; border-radius: 99px;
@@ -689,44 +731,44 @@ html {
     height: 3px; background: $brand; border-radius: 99px;
   }
   .slider-input {
-    position: absolute; top: 0; left: 0; width: 100%; height: 26px; margin: 0;
+    position: absolute; top: 0; left: 0; width: 100%; height: 24px; margin: 0;
     background: none; pointer-events: none; -webkit-appearance: none; appearance: none;
     &::-webkit-slider-thumb {
       -webkit-appearance: none; appearance: none; pointer-events: auto;
-      width: 18px; height: 18px; border-radius: 50%; background: $white; border: 2px solid $brand;
+      width: 16px; height: 16px; border-radius: 50%; background: $white; border: 2px solid $brand;
       cursor: pointer; box-shadow: 0 2px 6px -1px rgba(0,0,0,.3); margin-top: 0;
     }
     &::-moz-range-thumb {
-      pointer-events: auto; width: 18px; height: 18px; border-radius: 50%;
+      pointer-events: auto; width: 16px; height: 16px; border-radius: 50%;
       background: $white; border: 2px solid $brand; cursor: pointer; box-shadow: 0 2px 6px -1px rgba(0,0,0,.3);
     }
     &::-webkit-slider-runnable-track { background: none; }
     &::-moz-range-track { background: none; }
   }
-  .price-inputs { display: flex; align-items: center; gap: 8px; }
+  .price-inputs { display: flex; align-items: center; gap: 7px; }
   .price-input-wrap {
     flex: 1; display: flex; align-items: center; gap: 4px; min-width: 0;
-    border: 1px solid $line; border-radius: 10px; padding: 0 10px; background: $white;
+    border: 1px solid $line; border-radius: 9px; padding: 0 9px; background: $white;
     transition: border-color .15s ease, box-shadow .15s ease;
     &:focus-within { border-color: $brand; box-shadow: 0 0 0 3px rgba(255,106,19,.12); }
-    .price-prefix { font-size: 12.5px; color: $ink-muted; flex-shrink: 0; }
+    .price-prefix { font-size: 12px; color: $ink-muted; flex-shrink: 0; }
     input {
-      flex: 1; width: 0; min-width: 0; padding: 8px 0; border: none; outline: none;
-      font-size: 13px; color: $ink-soft; background: none; font-family: inherit;
+      flex: 1; width: 0; min-width: 0; padding: 7px 0; border: none; outline: none;
+      font-size: 12.5px; color: $ink-soft; background: none; font-family: inherit;
       -moz-appearance: textfield;
       &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
       &::placeholder { color: #b3b3b8; }
     }
   }
-  .price-dash { flex-shrink: 0; color: $ink-muted; font-size: 12.5px; }
-  .filters-footer { padding: 14px 20px 18px; flex-shrink: 0; border-top: 1px solid $line; }
+  .price-dash { flex-shrink: 0; color: $ink-muted; font-size: 12px; }
+  .filters-footer { padding: 12px 16px 15px; flex-shrink: 0; border-top: 1px solid $line; }
   .clear-filters-btn {
-    width: 100%; padding: 11px; background: $white; color: $brand-dark;
-    border: 1.5px solid $brand; border-radius: 10px; font-weight: 700; font-size: 13px;
+    width: 100%; padding: 10px; background: $white; color: $brand-dark;
+    border: 1.5px solid $brand; border-radius: 9px; font-weight: 700; font-size: 12.5px;
     cursor: pointer; font-family: inherit;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
     @include ios-tap;
-    &:hover { background: $brand; color: $white; } i { font-size: 12px; }
+    &:hover { background: $brand; color: $white; } i { font-size: 11px; }
   }
 
   .products-content { display: flex; flex-direction: column; min-height: 0; }
@@ -785,12 +827,18 @@ html {
     background: $white;
     border-radius: 14px; overflow: hidden; cursor: pointer; border: 1px solid $line;
     display: flex; flex-direction: column; height: 100%;
-    @include ios-tap;
+    // No @include ios-tap and no transform on hover/active here anymore.
+    // This card contains a nested interactive button (View Product /
+    // wishlist heart). Transforming the *whole card* on press/hover was
+    // shifting its geometry right as the browser was also deciding
+    // whether the just-focused button needed to be scrolled into view —
+    // the combination is what read as an extra "jump". The card still
+    // gets a hover elevation via box-shadow/border, just no transform.
+    transition: box-shadow .15s ease, border-color .15s ease;
     &:hover {
-      box-shadow: 0 16px 32px -18px rgba(11,31,58,.28); border-color: #d7dbe0;
-      transform: translateY(-3px);
+      box-shadow: 0 16px 32px -18px rgba(11,31,58,.28);
+      border-color: #d7dbe0;
     }
-    &:active { transform: translateY(-1px) scale(.99); }
     .product-image {
       position: relative; aspect-ratio: 1 / 1; width: 100%;
       background: $white;
@@ -916,7 +964,7 @@ html {
     .products-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 992px) {
-    .catalog-layout { grid-template-columns: 220px 1fr; gap: 20px; }
+    .catalog-layout { grid-template-columns: 210px 1fr; gap: 20px; }
     .products-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .bs-product-card { flex: 0 0 170px; }
     .hbx-row { grid-template-columns: 1fr; }
@@ -953,7 +1001,11 @@ html {
     .promo-lg, .promo-sm { grid-column: span 1; }
     .promo-features { grid-template-columns: 1fr; gap: 16px; }
     .hbx-features { grid-template-columns: 1fr; }
-    .hbx-banner { min-height: 260px; }
+    .hbx-banner {
+      // Match the fixed-height approach on mobile too, just with a
+      // shorter value appropriate to the smaller viewport.
+      height: 260px;
+    }
   }
   @media (max-width: 480px) {
     .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }

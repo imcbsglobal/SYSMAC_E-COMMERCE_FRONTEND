@@ -8,7 +8,7 @@ export default function Footer() {
 
         <div className="footer-main">
           <div className="footer-brand">
-            <h3 className="footer-logo">SYSMAC</h3>
+            <h3 className="footer-logo">IMC BUSINESS SOLUTIONS</h3>
             <p className="footer-logo-sub">Hardware. Redefined.</p>
             <p className="footer-desc">
               Your trusted partner for premium hardware solutions. Quality products, reliable service, every time.
@@ -57,8 +57,8 @@ export default function Footer() {
           <div className="footer-col footer-newsletter-col">
             <h4 className="footer-heading">Get in Touch</h4>
             <ul className="footer-contact">
-              <li><strong>Phone:</strong> +91 123 456 7890</li>
-              <li><strong>Email:</strong> support@sysmac.com</li>
+              <li><strong>Phone:</strong> +91 9072791379</li>
+              <li><strong>Email:</strong> info@imcbusinesssolutions.com</li>
               <li><strong>Mon - Saturday:</strong> 9AM - 6PM</li>
             </ul>
 
@@ -80,7 +80,7 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <p className="footer-copyright">
-            © {new Date().getFullYear()} Sysmac Hardware. All Rights Reserved.
+            © {new Date().getFullYear()} IMC BUSINESS SOLUTIONS. All Rights Reserved.
           </p>
 
           <div className="footer-payments">

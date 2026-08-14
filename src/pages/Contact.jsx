@@ -217,11 +217,11 @@ const Contact = () => {
               <div>
                 <h3>Our Office</h3>
                 <p>
-                  Sysmac Hardware Pvt. Ltd.
+                  IMC BUSINESS SOLUTION LLP.
                   <br />
-                  X/123, Industrial Area
+                  Palakkunnumal Building, Near Govt Ayurvedic Hospital, Emily- Kalpetta
                   <br />
-                  Kochi, Kerala 682019, India
+                 Wayanad,Kerala,India - 673121
                 </p>
               </div>
             </div>
@@ -287,7 +287,7 @@ const Contact = () => {
 
           <div className="contact-map">
             <iframe
-              title="Sysmac Hardware Location"
+              title="IMC Location"
               src="https://www.google.com/maps?q=Kochi,Kerala,India&output=embed"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
